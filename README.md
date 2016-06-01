@@ -1,0 +1,2 @@
+# Query
+The Query Component
