@@ -91,7 +91,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 			->delete()
 			->where('id', '=', 1);
 
-		$this->assertEquals('DELETE FROM test', (string) $query);
+		$this->assertEquals('DELETE FROM test WHERE id = :id', (string) $query);
 	}
 
 	public function testExecute()

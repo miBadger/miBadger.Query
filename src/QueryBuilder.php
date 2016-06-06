@@ -95,6 +95,10 @@ class QueryBuilder implements QueryInterface
 			case self::DELETE:
 				$result = $this->getDeleteClause();
 
+				if ($where = $this->getWhereClause()) {
+					$result .= ' ' . $where;
+				}
+
 				if ($limit = $this->getLimitClause()) {
 					$result .= ' ' . $limit;
 				}

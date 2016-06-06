@@ -93,7 +93,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 			->delete()
 			->where('id', '=', 1);
 
-		$this->assertEquals('DELETE FROM test', (string) $query);
+		$this->assertEquals('DELETE FROM test WHERE id = 1', (string) $query);
 	}
 
 	public function testDeleteLimit()
@@ -103,6 +103,6 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 			->where('id', '=', 1)
 			->limit(1);
 
-		$this->assertEquals('DELETE FROM test LIMIT 1', (string) $query);
+		$this->assertEquals('DELETE FROM test WHERE id = 1 LIMIT 1', (string) $query);
 	}
 }
