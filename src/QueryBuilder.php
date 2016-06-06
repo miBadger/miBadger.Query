@@ -30,7 +30,7 @@ class QueryBuilder implements QueryInterface
 	private $values;
 
 	/* @var array The where conditions. */
-	private $wheres;
+	private $where;
 
 	/* @var string The limit. */
 	private $limit;
