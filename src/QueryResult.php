@@ -58,5 +58,3 @@ class QueryResult implements \IteratorAggregate
 		return $this->pdoStatement->fetchAll();
 	}
 }
-
-?>
