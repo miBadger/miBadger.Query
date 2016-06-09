@@ -44,6 +44,26 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('SELECT * FROM test WHERE name LIKE :name', (string) $query);
 	}
 
+	public function testSelectGroupBy()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->groupBy('name');
+
+		$this->assertEquals('SELECT * FROM test GROUP BY name', (string) $query);
+	}
+
+	public function testSelectOrderBy()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->orderBy('name', 'desc');
+
+		$this->assertEquals('SELECT * FROM test ORDER BY name DESC', (string) $query);
+	}
+
 	public function testSelectLimit()
 	{
 		$pdo = new \PDO('sqlite::memory:');

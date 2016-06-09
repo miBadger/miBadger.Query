@@ -23,7 +23,7 @@ class Query implements QueryInterface
 	/* @var array The bindings. */
 	private $bindings;
 
-	/* @var QueryBuilder. */
+	/* @var QueryBuilder The query builder. */
 	private $queryBuilder;
 
 	/**
@@ -105,6 +105,26 @@ class Query implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
+	public function groupBy($column)
+	{
+		$this->queryBuilder->groupBy($column);
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function orderBy($column, $order = null)
+	{
+		$this->queryBuilder->orderBy($column, $order);
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function limit($limit)
 	{
 		$this->bindings[':limit'] = $limit;
@@ -125,7 +145,9 @@ class Query implements QueryInterface
 	}
 
 	/**
+	 * Returns the result of the executed prepared query.
 	 *
+	 * @return QueryResult the result of the executed prepared query.
 	 */
 	public function execute()
 	{
@@ -136,9 +158,12 @@ class Query implements QueryInterface
 	}
 
 	/**
+	 * Returns the values array with bindings instead of values.
 	 *
+	 * @param array $values
+	 * @return array the values array with bindings instead of values.
 	 */
-	private function replaceValuesWithBindings($values)
+	private function replaceValuesWithBindings(array $values)
 	{
 		$result = [];
 
