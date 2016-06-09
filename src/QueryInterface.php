@@ -73,6 +73,7 @@ interface QueryInterface
 	 * Set an additional group by.
 	 *
 	 * @param string $column
+	 * @return $this
 	 */
 	public function groupBy($column);
 
