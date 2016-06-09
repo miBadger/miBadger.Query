@@ -41,6 +41,42 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('SELECT * FROM test WHERE name LIKE John Doe', (string) $query);
 	}
 
+	public function testSelectGroupBy()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->groupBy('name');
+
+		$this->assertEquals('SELECT * FROM test GROUP BY name', (string) $query);
+	}
+
+	public function testSelectOrderBy()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->orderBy('name');
+
+		$this->assertEquals('SELECT * FROM test ORDER BY name', (string) $query);
+	}
+
+	public function testSelectOrderByAsc()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->orderBy('name', 'asc');
+
+		$this->assertEquals('SELECT * FROM test ORDER BY name ASC', (string) $query);
+	}
+
+	public function testSelectOrderByDesc()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->orderBy('name', 'desc');
+
+		$this->assertEquals('SELECT * FROM test ORDER BY name DESC', (string) $query);
+	}
+
 	public function testSelectLimit()
 	{
 		$query = (new QueryBuilder('test'))

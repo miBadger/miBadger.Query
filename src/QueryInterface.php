@@ -26,7 +26,7 @@ interface QueryInterface
 	/**
 	 * Set the modifier to select and select the given columns.
 	 *
-	 * @param array $columns = ['*']
+	 * @param array|string $columns = ['*']
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Queries
 	 */
@@ -68,6 +68,22 @@ interface QueryInterface
 	 * @see https://en.wikipedia.org/wiki/SQL#Operators
 	 */
 	public function where($column, $operator, $value);
+
+	/**
+	 * Set an additional group by.
+	 *
+	 * @param string $column
+	 */
+	public function groupBy($column);
+
+	/**
+	 * Set an additional order condition.
+	 *
+	 * @param string $column
+	 * @param string|null $order
+	 * @return $this
+	 */
+	public function orderBy($column, $order = null);
 
 	/**
 	 * Set the limit.

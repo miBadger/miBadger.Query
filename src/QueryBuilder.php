@@ -32,6 +32,12 @@ class QueryBuilder implements QueryInterface
 	/* @var array The where conditions. */
 	private $where;
 
+	/* @var array The group by conditions. */
+	private $groupBy;
+
+	/* @var array The order by conditions. */
+	private $orderBy;
+
 	/* @var string The limit. */
 	private $limit;
 
@@ -47,6 +53,8 @@ class QueryBuilder implements QueryInterface
 	{
 		$this->table = $table;
 		$this->where = [];
+		$this->groupBy = [];
+		$this->orderBy = [];
 	}
 
 	/**
@@ -62,6 +70,14 @@ class QueryBuilder implements QueryInterface
 
 				if ($where = $this->getWhereClause()) {
 					$result .= ' ' . $where;
+				}
+
+				if ($groupBy = $this->getGroupByClause()) {
+					$result .= ' ' . $groupBy;
+				}
+
+				if ($orderBy = $this->getOrderByClause()) {
+					$result .= ' ' . $orderBy;
 				}
 
 				if ($limit = $this->getLimitClause()) {
@@ -235,6 +251,60 @@ class QueryBuilder implements QueryInterface
 		}
 
 		return sprintf('WHERE %s', implode(' AND ', $result));
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function groupBy($column)
+	{
+		$this->groupBy[] = $column;
+
+		return $this;
+	}
+
+	/**
+	 * Returns the group by clause.
+	 *
+	 * @return string the group by clause.
+	 */
+	public function getGroupByClause()
+	{
+		if (empty($this->groupBy)) {
+			return '';
+		}
+
+		return sprintf('GROUP BY %s', implode(', ', $this->groupBy));
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function orderBy($column, $order = null)
+	{
+		if (strcasecmp($order, 'asc') == 0) {
+			$column .= ' ASC';
+		} elseif(strcasecmp($order, 'desc') == 0) {
+			$column .= ' DESC';
+		}
+
+		$this->orderBy[] = $column;
+
+		return $this;
+	}
+
+	/**
+	 * Returns the order by clause.
+	 *
+	 * @return string the order by clause.
+	 */
+	public function getOrderByClause()
+	{
+		if (empty($this->orderBy)) {
+			return '';
+		}
+
+		return sprintf('ORDER BY %s', implode(', ', $this->orderBy));
 	}
 
 	/**
