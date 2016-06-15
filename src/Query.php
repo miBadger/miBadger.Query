@@ -96,8 +96,34 @@ class Query implements QueryInterface
 	{
 		$binding = sprintf(':%s', $column);
 
-		$this->bindings[$binding] = $value;
-		$this->queryBuilder->where($column, $operator, $binding);
+		if ($operator == 'IN') {
+			$this->whereIn($column, $value);
+		} else {
+			$this->bindings[$binding] = $value;
+			$this->queryBuilder->where($column, $operator, $binding);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Set an additional where in condition.
+	 *
+	 * @param string $column
+	 * @param mixed $values
+	 * @return $this
+	 */
+	private function whereIn($column, $values)
+	{
+		$bindings = [];
+
+		foreach ($values as $key => $value) {
+			$bindings[] = $binding = sprintf(':%s%s', $column, $key);
+
+			$this->bindings[$binding] = $value;
+		}
+
+		$this->queryBuilder->where($column, 'IN', $bindings);
 
 		return $this;
 	}

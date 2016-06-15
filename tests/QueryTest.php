@@ -44,6 +44,16 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('SELECT * FROM test WHERE name LIKE :name', (string) $query);
 	}
 
+	public function testSelectWhereIn()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->where('name', 'IN', ['John Doe', 'Jane Doe']);
+
+		$this->assertEquals('SELECT * FROM test WHERE name IN (:name0, :name1)', (string) $query);
+	}
+
 	public function testSelectGroupBy()
 	{
 		$pdo = new \PDO('sqlite::memory:');
