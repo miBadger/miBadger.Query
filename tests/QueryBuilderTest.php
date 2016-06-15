@@ -59,6 +59,24 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('SELECT * FROM test WHERE name LIKE John Doe AND email LIKE john@doe.com', (string) $query);
 	}
 
+	public function testSeelectWhereIn()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->where('name', 'IN', 'John Doe, Jane Doe');
+
+		$this->assertEquals('SELECT * FROM test WHERE name IN (John Doe, Jane Doe)', (string) $query);
+	}
+
+	public function testSeelectWhereInArray()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->where('name', 'IN', ['John Doe', 'Jane Doe']);
+
+		$this->assertEquals('SELECT * FROM test WHERE name IN (John Doe, Jane Doe)', (string) $query);
+	}
+
 	public function testSelectGroupBy()
 	{
 		$query = (new QueryBuilder('test'))

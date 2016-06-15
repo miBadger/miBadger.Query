@@ -247,10 +247,27 @@ class QueryBuilder implements QueryInterface
 		$result = [];
 
 		foreach ($this->where as $key => $value) {
-			$result[] = sprintf('%s %s %s', $value[0], $value[1], $value[2]);
+			$result[] = $this->getWhereCondition($value[0], $value[1], $value[2]);
 		}
 
 		return sprintf('WHERE %s', implode(' AND ', $result));
+	}
+
+	/**
+	 * Returns the where condition.
+	 *
+	 * @param string $column
+	 * @param string $operator
+	 * @param mixed $value
+	 * @return string the where condition.
+	 */
+	private function getWhereCondition($column, $operator, $value)
+	{
+		if ($operator == 'IN') {
+			return sprintf('%s IN (%s)', $column, is_array($value) ? implode(', ', $value) : $value);
+		} else {
+			return sprintf('%s %s %s', $column, $operator, $value);
+		}
 	}
 
 	/**
