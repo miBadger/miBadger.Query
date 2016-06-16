@@ -153,7 +153,7 @@ class Query implements QueryInterface
 	 */
 	public function limit($limit)
 	{
-		$this->bindings[':limit'] = $limit;
+		$this->bindings[':limit'] = (int) $limit;
 		$this->queryBuilder->limit(':limit');
 
 		return $this;
@@ -164,7 +164,7 @@ class Query implements QueryInterface
 	 */
 	public function offset($offset)
 	{
-		$this->bindings[':offset'] = $offset;
+		$this->bindings[':offset'] = (int) $offset;
 		$this->queryBuilder->offset(':offset');
 
 		return $this;
@@ -178,7 +178,22 @@ class Query implements QueryInterface
 	public function execute()
 	{
 		$pdoStatement = $this->pdo->prepare((string) $this);
-		$pdoStatement->execute($this->bindings);
+
+		foreach ($this->bindings as $key => $value) {
+			if (is_bool($value)) {
+				$type = \PDO::PARAM_BOOL;
+			} elseif (is_null($value)) {
+				$type = \PDO::PARAM_NULL;
+			} elseif (is_int($value)) {
+				$type = \PDO::PARAM_INT;
+			} else {
+				$type = \PDO::PARAM_STR;
+			}
+
+			$pdoStatement->bindValue($key, $value, $type);
+		}
+
+		$pdoStatement->execute();
 
 		return new QueryResult($pdoStatement);
 	}
