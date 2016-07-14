@@ -5,24 +5,27 @@ The query result class.
 ## Example(s)
 
 ```php
-// Get the query result.
-$queryResult = $query->execute();
+<?php
 
-// Count the number of rows
-$queryResult->count();
+use miBadger\Query\QueryResult;
 
-count($queryResult);
+/**
+ * Construct a query result object with the given pdo statement.
+ */
+$queryResult = QueryResult(\PDOStatement $pdoStatement);
 
-// Use the iterator
+/**
+ * {@inheritdoc}
+ */
 $queryResult->getIterator();
 
-foreach ($queryResult as $row) {
-
-}
-
-// Fetch a row
+/**
+ * Fetches a row from the result set.
+ */
 $queryResult->fetch();
 
-// Fetch all rows
+/**
+ * Fetches all rows from the result set.
+ */
 $queryResult->fetchAll();
 ```

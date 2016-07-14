@@ -45,7 +45,7 @@ class QueryBuilder implements QueryInterface
 	private $offset;
 
 	/**
-	 * Construct a query object with the given table.
+	 * Construct a query builder object with the given table.
 	 *
 	 * @param string $table
 	 */
