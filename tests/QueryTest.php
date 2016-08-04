@@ -44,17 +44,28 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('SELECT * FROM test WHERE name LIKE :where1', (string) $query);
 	}
 
-	public function testSelectWhereNotLike()
+	public function testSelectWhereKeyDuplicate()
 	{
 		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
 			->select()
-			->where('name', 'NOT LIKE', 'John Doe');
+			->where('name', 'LIKE', '%John%')
+			->where('name', 'NOT LIKE', '%Doe%');
 
-		$this->assertEquals('SELECT * FROM test WHERE name NOT LIKE :where1', (string) $query);
+		$this->assertEquals('SELECT * FROM test WHERE name LIKE :where1 AND name NOT LIKE :where2', (string) $query);
 	}
 
-	public function testSelectWhereIn()
+	public function testSelectWhereKeyFunction()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->where('LOWER(name)', 'LIKE', 'john doe');
+
+		$this->assertEquals('SELECT * FROM test WHERE LOWER(name) LIKE :where1', (string) $query);
+	}
+
+	public function testSelectWhereOperatorIn()
 	{
 		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
