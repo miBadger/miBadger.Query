@@ -41,17 +41,38 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 			->select()
 			->where('name', 'LIKE', 'John Doe');
 
-		$this->assertEquals('SELECT * FROM test WHERE name LIKE :name', (string) $query);
+		$this->assertEquals('SELECT * FROM test WHERE name LIKE :where1', (string) $query);
 	}
 
-	public function testSelectWhereIn()
+	public function testSelectWhereKeyDuplicate()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->where('name', 'LIKE', '%John%')
+			->where('name', 'NOT LIKE', '%Doe%');
+
+		$this->assertEquals('SELECT * FROM test WHERE name LIKE :where1 AND name NOT LIKE :where2', (string) $query);
+	}
+
+	public function testSelectWhereKeyFunction()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->where('LOWER(name)', 'LIKE', 'john doe');
+
+		$this->assertEquals('SELECT * FROM test WHERE LOWER(name) LIKE :where1', (string) $query);
+	}
+
+	public function testSelectWhereOperatorIn()
 	{
 		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
 			->select()
 			->where('name', 'IN', ['John Doe', 'Jane Doe']);
 
-		$this->assertEquals('SELECT * FROM test WHERE name IN (:name0, :name1)', (string) $query);
+		$this->assertEquals('SELECT * FROM test WHERE name IN (:where1, :where2)', (string) $query);
 	}
 
 	public function testSelectGroupBy()
@@ -81,7 +102,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 			->select()
 			->limit(1);
 
-		$this->assertEquals('SELECT * FROM test LIMIT :limit', (string) $query);
+		$this->assertEquals('SELECT * FROM test LIMIT :limit1', (string) $query);
 	}
 
 	public function testSelectOffset()
@@ -92,7 +113,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 			->limit(1)
 			->offset(1);
 
-		$this->assertEquals('SELECT * FROM test LIMIT :limit OFFSET :offset', (string) $query);
+		$this->assertEquals('SELECT * FROM test LIMIT :limit1 OFFSET :offset1', (string) $query);
 	}
 
 	public function testInsert()
@@ -101,7 +122,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 		$query = (new Query($pdo, 'test'))
 			->insert(['name' => 'John Doe']);
 
-		$this->assertEquals('INSERT INTO test (name) VALUES (:name)', (string) $query);
+		$this->assertEquals('INSERT INTO test (name) VALUES (:insert1)', (string) $query);
 	}
 
 	public function testUpdate()
@@ -111,7 +132,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 			->update(['name' => 'John Doe'])
 			->where('id', '=', 1);
 
-		$this->assertEquals('UPDATE test SET name = :name WHERE id = :id', (string) $query);
+		$this->assertEquals('UPDATE test SET name = :update1 WHERE id = :where1', (string) $query);
 	}
 
 	public function testDelete()
@@ -121,18 +142,21 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 			->delete()
 			->where('id', '=', 1);
 
-		$this->assertEquals('DELETE FROM test WHERE id = :id', (string) $query);
+		$this->assertEquals('DELETE FROM test WHERE id = :where1', (string) $query);
 	}
 
 	public function testExecute()
 	{
 		$pdo = new \PDO('sqlite::memory:');
-		$pdo->query('CREATE TABLE IF NOT EXISTS `test` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255))');
-		$pdo->query('INSERT INTO `test` (`id`, `name`) VALUES (1, "John Doe")');
+		$pdo->query('CREATE TABLE IF NOT EXISTS `test` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255), `active` BIT)');
+		$pdo->query('INSERT INTO `test` (`id`, `name`, `active`) VALUES (1, "John Doe", 1)');
 
 		$query = (new Query($pdo, 'test'))
 			->select()
-			->where('id', '=', 1);
+			->where('id', '=', 1)
+			->where('name', 'LIKE', 'John Doe')
+			->where('name', 'IS NOT', null)
+			->where('active', '=', true);
 
 		$result = $query->execute()->fetch();
 
