@@ -226,11 +226,11 @@ class Query implements QueryInterface
 	}
 
 	/**
-	 * TODO (Returns the bindings that are associated with the given clause.)
+	 * Returns a binding for the given clause and value.
 	 *
-	 * @param array $values
+	 * @param array $value
 	 * @param string $clause
-	 * @return string TODO
+	 * @return string a binding for the given clause and value.
 	 */
 	private function addBinding($clause, $value)
 	{
@@ -240,11 +240,11 @@ class Query implements QueryInterface
 	}
 
 	/**
-	 * TODO
+	 * Return bindings for the given clause and values.
 	 *
 	 * @param array $values
 	 * @param string $clause
-	 * @return array TODO
+	 * @return array bindings for the given clause and values.
 	 */
 	private function addBindings($clause, array $values)
 	{
@@ -258,11 +258,11 @@ class Query implements QueryInterface
 	}
 
 	/**
-	 * TODO
+	 * Returns a binding for the given clause and value.
 	 *
-	 * @param array $values
+	 * @param array $value
 	 * @param string $clause
-	 * @return string TODO
+	 * @return string a binding for the given clause and value.
 	 */
 	private function setBinding($clause, $value)
 	{
@@ -270,11 +270,11 @@ class Query implements QueryInterface
 	}
 
 	/**
-	 * TODO
+	 * Return bindings for the given clause and values.
 	 *
 	 * @param array $values
 	 * @param string $clause
-	 * @return array TODO
+	 * @return array bindings for the given clause and values.
 	 */
 	private function setBindings($clause, array $values)
 	{
