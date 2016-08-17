@@ -240,7 +240,7 @@ class Query implements QueryInterface
 	}
 
 	/**
-	 * Return bindings for the given clause and values.
+	 * Returns bindings for the given clause and values.
 	 *
 	 * @param string $clause
 	 * @param array $values
@@ -270,7 +270,7 @@ class Query implements QueryInterface
 	}
 
 	/**
-	 * Return bindings for the given clause and values.
+	 * Returns bindings for the given clause and values.
 	 *
 	 * @param string $clause
 	 * @param array $values
@@ -282,7 +282,7 @@ class Query implements QueryInterface
 	}
 
 	/**
-	 * Remove the bindings that are associated with the given caluse.
+	 * Remove the bindings that are associated with the given clause.
 	 *
 	 * @param string $clause
 	 * @return $this
