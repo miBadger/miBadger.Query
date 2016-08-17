@@ -64,7 +64,8 @@ class Query implements QueryInterface
 	 */
 	public function insert(array $values)
 	{
-		$this->queryBuilder->insert($this->replaceValuesWithBindings($values, 'insert'));
+		$this->bindings['insert'] = [];
+		$this->queryBuilder->insert($this->setBindings('insert', $values));
 
 		return $this;
 	}
@@ -74,7 +75,7 @@ class Query implements QueryInterface
 	 */
 	public function update(array $values)
 	{
-		$this->queryBuilder->update($this->replaceValuesWithBindings($values, 'update'));
+		$this->queryBuilder->update($this->setBindings('update', $values));
 
 		return $this;
 	}
@@ -134,34 +135,11 @@ class Query implements QueryInterface
 	 */
 	public function where($column, $operator, $value)
 	{
-		if ($operator == 'IN') {
-			$this->whereIn($column, is_array($value) ? $value : [$value]);
+		if ($operator == 'IN' && is_array($value)) {
+			$this->queryBuilder->where($column, 'IN', $this->addBindings('where', $value));
 		} else {
-			$this->bindings['where'][] = $value;
-			$this->queryBuilder->where($column, $operator, sprintf(':where%s', count($this->bindings['where'])));
+			$this->queryBuilder->where($column, $operator, $this->addBinding('where', $value));
 		}
-
-		return $this;
-	}
-
-	/**
-	 * Set an additional where in condition.
-	 *
-	 * @param string $column
-	 * @param array $values
-	 * @return $this
-	 */
-	private function whereIn($column, $values)
-	{
-		$bindings = [];
-
-		foreach ($values as $value) {
-			$this->bindings['where'][] = $value;
-
-			$bindings[] = sprintf(':where%s', count($this->bindings['where']));
-		}
-
-		$this->queryBuilder->where($column, 'IN', $bindings);
 
 		return $this;
 	}
@@ -191,8 +169,7 @@ class Query implements QueryInterface
 	 */
 	public function limit($limit)
 	{
-		$this->bindings['limit'][] = (int) $limit;
-		$this->queryBuilder->limit(':limit1');
+		$this->queryBuilder->limit($this->setBinding('limit', (int) $limit));
 
 		return $this;
 	}
@@ -202,8 +179,7 @@ class Query implements QueryInterface
 	 */
 	public function offset($offset)
 	{
-		$this->bindings['offset'][] = (int) $offset;
-		$this->queryBuilder->offset(':offset1');
+		$this->queryBuilder->offset($this->setBinding('offset', (int) $offset));
 
 		return $this;
 	}
@@ -219,17 +195,7 @@ class Query implements QueryInterface
 
 		foreach ($this->bindings as $clause => $predicate) {
 			foreach ($predicate as $key => $value) {
-				if (is_bool($value)) {
-					$type = \PDO::PARAM_BOOL;
-				} elseif (is_null($value)) {
-					$type = \PDO::PARAM_NULL;
-				} elseif (is_int($value)) {
-					$type = \PDO::PARAM_INT;
-				} else {
-					$type = \PDO::PARAM_STR;
-				}
-
-				$pdoStatement->bindValue(sprintf(':%s%s', $clause, $key + 1), $value, $type);
+				$pdoStatement->bindValue(sprintf(':%s%d', $clause, $key + 1), $value, $this->getPdoDataType($value));
 			}
 		}
 
@@ -239,21 +205,92 @@ class Query implements QueryInterface
 	}
 
 	/**
-	 * Returns the values array with bindings instead of values.
+	 * Returns the data type of the given value.
+	 *
+	 * @param mixed $value
+	 * @return int the data type of the given value.
+	 */
+	private function getPdoDataType($value)
+	{
+		$result = \PDO::PARAM_STR;
+
+		if (is_bool($value)) {
+			$result = \PDO::PARAM_BOOL;
+		} elseif (is_null($value)) {
+			$result = \PDO::PARAM_NULL;
+		} elseif (is_int($value)) {
+			$result = \PDO::PARAM_INT;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * TODO (Returns the bindings that are associated with the given clause.)
 	 *
 	 * @param array $values
-	 * @return array the values array with bindings instead of values.
+	 * @param string $clause
+	 * @return string TODO
 	 */
-	private function replaceValuesWithBindings(array $values, $clause)
+	private function addBinding($clause, $value)
+	{
+		$this->bindings[$clause][] = $value;
+
+		return sprintf(':%s%d', $clause, count($this->bindings[$clause]));
+	}
+
+	/**
+	 * TODO
+	 *
+	 * @param array $values
+	 * @param string $clause
+	 * @return array TODO
+	 */
+	private function addBindings($clause, array $values)
 	{
 		$result = [];
 
 		foreach ($values as $key => $value) {
-			$this->bindings[$clause][] = $value;
-
-			$result[$key] = sprintf(':%s%s', $clause, count($this->bindings[$clause]));
+			$result[$key] = $this->addBinding($clause, $value);
 		}
 
 		return $result;
+	}
+
+	/**
+	 * TODO
+	 *
+	 * @param array $values
+	 * @param string $clause
+	 * @return string TODO
+	 */
+	private function setBinding($clause, $value)
+	{
+		return $this->removeBindings($clause)->addBinding($clause, $value);
+	}
+
+	/**
+	 * TODO
+	 *
+	 * @param array $values
+	 * @param string $clause
+	 * @return array TODO
+	 */
+	private function setBindings($clause, array $values)
+	{
+		return $this->removeBindings($clause)->addBindings($clause, $values);
+	}
+
+	/**
+	 * Remove the bindings that are associated with the given caluse.
+	 *
+	 * @param string $clause
+	 * @return $this
+	 */
+	private function removeBindings($clause)
+	{
+		$this->bindings[$clause] = [];
+
+		return $this;
 	}
 }
