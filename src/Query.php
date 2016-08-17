@@ -54,7 +54,7 @@ class Query implements QueryInterface
 	 */
 	public function select($columns = ['*'])
 	{
-		$this->queryBuilder->select($columns);
+		$this->queryBuilder->select(is_array($columns) ? $columns : func_get_args());
 
 		return $this;
 	}
@@ -85,6 +85,46 @@ class Query implements QueryInterface
 	public function delete()
 	{
 		$this->queryBuilder->delete();
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function join($table, $primary, $operator, $secondary)
+	{
+		$this->queryBuilder->join($table, $primary, $operator, $secondary);
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function leftJoin($table, $primary, $operator, $secondary)
+	{
+		$this->queryBuilder->leftJoin($table, $primary, $operator, $secondary);
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function rightJoin($table, $primary, $operator, $secondary)
+	{
+		$this->queryBuilder->rightJoin($table, $primary, $operator, $secondary);
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function crossJoin($table, $primary, $operator, $secondary)
+	{
+		$this->queryBuilder->crossJoin($table, $primary, $operator, $secondary);
 
 		return $this;
 	}

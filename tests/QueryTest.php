@@ -34,6 +34,46 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('SELECT * FROM test', (string) $query);
 	}
 
+	public function testSelectJoin()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->join('test2', 'test.id', '=', 'test2.id');
+
+		$this->assertEquals('SELECT * FROM test INNER JOIN test2 ON test.id = test2.id', (string) $query);
+	}
+
+	public function testSelectLeftJoin()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->leftJoin('test2', 'test.id', '=', 'test2.id');
+
+		$this->assertEquals('SELECT * FROM test LEFT JOIN test2 ON test.id = test2.id', (string) $query);
+	}
+
+	public function testSelectRightJoin()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->rightJoin('test2', 'test.id', '=', 'test2.id');
+
+		$this->assertEquals('SELECT * FROM test RIGHT JOIN test2 ON test.id = test2.id', (string) $query);
+	}
+
+	public function testSelectCrossJoin()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->crossJoin('test2', 'test.id', '=', 'test2.id');
+
+		$this->assertEquals('SELECT * FROM test CROSS JOIN test2 ON test.id = test2.id', (string) $query);
+	}
+
 	public function testSelectWhere()
 	{
 		$pdo = new \PDO('sqlite::memory:');

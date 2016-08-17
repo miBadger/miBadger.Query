@@ -29,6 +29,9 @@ class QueryBuilder implements QueryInterface
 	/* @var array The values. */
 	private $values;
 
+	/* @var array The join conditions. */
+	private $join;
+
 	/* @var array The where conditions. */
 	private $where;
 
@@ -52,6 +55,7 @@ class QueryBuilder implements QueryInterface
 	public function __construct($table)
 	{
 		$this->table = $table;
+		$this->join = [];
 		$this->where = [];
 		$this->groupBy = [];
 		$this->orderBy = [];
@@ -67,6 +71,10 @@ class QueryBuilder implements QueryInterface
 		switch ($this->modifier) {
 			case self::SELECT:
 				$result = $this->getSelectClause();
+
+				if ($join = $this->getJoinClause()) {
+					$result .= ' ' . $join;
+				}
 
 				if ($where = $this->getWhereClause()) {
 					$result .= ' ' . $where;
@@ -221,6 +229,57 @@ class QueryBuilder implements QueryInterface
 	public function getDeleteClause()
 	{
 		return sprintf('DELETE FROM %s', $this->table);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function join($table, $primary, $operator, $secondary)
+	{
+		$this->join[] = ['INNER JOIN', $table, $primary, $operator, $secondary];
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function leftJoin($table, $primary, $operator, $secondary)
+	{
+		$this->join[] = ['LEFT JOIN', $table, $primary, $operator, $secondary];
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function rightJoin($table, $primary, $operator, $secondary)
+	{
+		$this->join[] = ['RIGHT JOIN', $table, $primary, $operator, $secondary];
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function crossJoin($table, $primary, $operator, $secondary)
+	{
+		$this->join[] = ['CROSS JOIN', $table, $primary, $operator, $secondary];
+
+		return $this;
+	}
+
+	public function getJoinClause()
+	{
+		$result = [];
+
+		foreach ($this->join as $key => $value) {
+			$result[] = sprintf('%s %s ON %s %s %s', $value[0], $value[1], $value[2], $value[3], $value[4]);
+		}
+
+		return implode(' ', $result);
 	}
 
 	/**

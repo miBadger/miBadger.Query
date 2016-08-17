@@ -40,6 +40,42 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('SELECT name FROM test', (string) $query);
 	}
 
+	public function testSelectJoin()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->join('test2', 'test.id', '=', 'test2.id');
+
+		$this->assertEquals('SELECT * FROM test INNER JOIN test2 ON test.id = test2.id', (string) $query);
+	}
+
+	public function testSelectLeftJoin()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->leftJoin('test2', 'test.id', '=', 'test2.id');
+
+		$this->assertEquals('SELECT * FROM test LEFT JOIN test2 ON test.id = test2.id', (string) $query);
+	}
+
+	public function testSelectRightJoin()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->rightJoin('test2', 'test.id', '=', 'test2.id');
+
+		$this->assertEquals('SELECT * FROM test RIGHT JOIN test2 ON test.id = test2.id', (string) $query);
+	}
+
+	public function testSelectCrossJoin()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->crossJoin('test2', 'test.id', '=', 'test2.id');
+
+		$this->assertEquals('SELECT * FROM test CROSS JOIN test2 ON test.id = test2.id', (string) $query);
+	}
+
 	public function testSelectWhere()
 	{
 		$query = (new QueryBuilder('test'))
