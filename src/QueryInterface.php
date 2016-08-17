@@ -29,6 +29,7 @@ interface QueryInterface
 	 * @param array|string $columns = ['*']
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Queries
+	 * @see https://en.wikipedia.org/wiki/Select_(SQL)
 	 */
 	public function select($columns = ['*']);
 
@@ -38,6 +39,7 @@ interface QueryInterface
 	 * @param array $values
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Data_manipulation
+	 * @see https://en.wikipedia.org/wiki/Insert_(SQL)
 	 */
 	public function insert(array $values);
 
@@ -47,6 +49,7 @@ interface QueryInterface
 	 * @param array $values
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Data_manipulation
+	 * @see https://en.wikipedia.org/wiki/Update_(SQL)
 	 */
 	public function update(array $values);
 
@@ -55,8 +58,57 @@ interface QueryInterface
 	 *
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Data_manipulation
+	 * @see https://en.wikipedia.org/wiki/Delete_(SQL)
 	 */
 	public function delete();
+
+	/**
+	 * Set an additional join condition.
+	 *
+	 * @param string $table
+	 * @param string $primary
+	 * @param string $operator
+	 * @param string $secondary
+	 * @return $this
+	 * @see https://en.wikipedia.org/wiki/SQL#Queries
+	 */
+	public function join($table, $primary, $operator, $secondary);
+
+	/**
+	 * Set an additional left join condition.
+	 *
+	 * @param string $table
+	 * @param string $primary
+	 * @param string $operator
+	 * @param string $secondary
+	 * @return $this
+	 * @see https://en.wikipedia.org/wiki/SQL#Queries
+	 */
+	public function leftJoin($table, $primary, $operator, $secondary);
+
+	/**
+	 * Set an additional right join condition.
+	 *
+	 * @param string $table
+	 * @param string $primary
+	 * @param string $operator
+	 * @param string $secondary
+	 * @return $this
+	 * @see https://en.wikipedia.org/wiki/SQL#Queries
+	 */
+	public function rightJoin($table, $primary, $operator, $secondary);
+
+	/**
+	 * Set an additional cross join condition.
+	 *
+	 * @param string $table
+	 * @param string $primary
+	 * @param string $operator
+	 * @param string $secondary
+	 * @return $this
+	 * @see https://en.wikipedia.org/wiki/SQL#Queries
+	 */
+	public function crossJoin($table, $primary, $operator, $secondary);
 
 	/**
 	 * Set an additional where condition.
@@ -66,6 +118,7 @@ interface QueryInterface
 	 * @param mixed $value
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Operators
+	 * @see https://en.wikipedia.org/wiki/Where_(SQL)
 	 */
 	public function where($column, $operator, $value);
 
@@ -74,6 +127,7 @@ interface QueryInterface
 	 *
 	 * @param string $column
 	 * @return $this
+	 * @see https://en.wikipedia.org/wiki/SQL#Queries
 	 */
 	public function groupBy($column);
 
@@ -83,6 +137,8 @@ interface QueryInterface
 	 * @param string $column
 	 * @param string|null $order
 	 * @return $this
+	 * @see https://en.wikipedia.org/wiki/SQL#Queries
+	 * @see https://en.wikipedia.org/wiki/Order_by
 	 */
 	public function orderBy($column, $order = null);
 

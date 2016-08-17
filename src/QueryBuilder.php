@@ -29,6 +29,9 @@ class QueryBuilder implements QueryInterface
 	/* @var array The values. */
 	private $values;
 
+	/* @var array The join conditions. */
+	private $join;
+
 	/* @var array The where conditions. */
 	private $where;
 
@@ -52,6 +55,7 @@ class QueryBuilder implements QueryInterface
 	public function __construct($table)
 	{
 		$this->table = $table;
+		$this->join = [];
 		$this->where = [];
 		$this->groupBy = [];
 		$this->orderBy = [];
@@ -66,60 +70,16 @@ class QueryBuilder implements QueryInterface
 	{
 		switch ($this->modifier) {
 			case self::SELECT:
-				$result = $this->getSelectClause();
-
-				if ($where = $this->getWhereClause()) {
-					$result .= ' ' . $where;
-				}
-
-				if ($groupBy = $this->getGroupByClause()) {
-					$result .= ' ' . $groupBy;
-				}
-
-				if ($orderBy = $this->getOrderByClause()) {
-					$result .= ' ' . $orderBy;
-				}
-
-				if ($limit = $this->getLimitClause()) {
-					$result .= ' ' . $limit;
-				}
-
-				if ($offset = $this->getOffsetClause()) {
-					$result .= ' ' . $offset;
-				}
-
-				return $result;
+				return $this->getSelectQuery();
 
 			case self::INSERT:
-				$result = $this->getInsertClause();
-
-				return $result;
+				return $this->getInsertQuery();
 
 			case self::UPDATE:
-				$result = $this->getUpdateClause();
-
-				if ($where = $this->getWhereClause()) {
-					$result .= ' ' . $where;
-				}
-
-				if ($limit = $this->getLimitClause()) {
-					$result .= ' ' . $limit;
-				}
-
-				return $result;
+				return $this->getUpdateQuery();
 
 			case self::DELETE:
-				$result = $this->getDeleteClause();
-
-				if ($where = $this->getWhereClause()) {
-					$result .= ' ' . $where;
-				}
-
-				if ($limit = $this->getLimitClause()) {
-					$result .= ' ' . $limit;
-				}
-
-				return $result;
+				return $this->getDeleteQuery();
 
 			default:
 				return '';
@@ -142,9 +102,45 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the select clause.
 	 */
-	public function getSelectClause()
+	private function getSelectClause()
 	{
 		return sprintf('SELECT %s FROM %s', implode(', ', $this->columns), $this->table);
+	}
+
+	/**
+	 * Returns the select query.
+	 *
+	 * @return string the select query.
+	 */
+	private function getSelectQuery()
+	{
+		$result = $this->getSelectClause();
+
+		if ($join = $this->getJoinClause()) {
+			$result .= ' ' . $join;
+		}
+
+		if ($where = $this->getWhereClause()) {
+			$result .= ' ' . $where;
+		}
+
+		if ($groupBy = $this->getGroupByClause()) {
+			$result .= ' ' . $groupBy;
+		}
+
+		if ($orderBy = $this->getOrderByClause()) {
+			$result .= ' ' . $orderBy;
+		}
+
+		if ($limit = $this->getLimitClause()) {
+			$result .= ' ' . $limit;
+		}
+
+		if ($offset = $this->getOffsetClause()) {
+			$result .= ' ' . $offset;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -163,7 +159,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the insert clause.
 	 */
-	public function getInsertClause()
+	private function getInsertClause()
 	{
 		$columns = [];
 		$values = [];
@@ -174,6 +170,16 @@ class QueryBuilder implements QueryInterface
 		}
 
 		return sprintf('INSERT INTO %s (%s) VALUES (%s)', $this->table, implode(', ', $columns), implode(', ', $values));
+	}
+
+	/**
+	 * Returns the insert query.
+	 *
+	 * @return string the insert query.
+	 */
+	private function getInsertQuery()
+	{
+		return $this->getInsertClause();
 	}
 
 	/**
@@ -192,7 +198,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the update clause.
 	 */
-	public function getUpdateClause()
+	private function getUpdateClause()
 	{
 		$placeholders = [];
 
@@ -201,6 +207,26 @@ class QueryBuilder implements QueryInterface
 		}
 
 		return sprintf('UPDATE %s SET %s', $this->table, implode(', ', $placeholders));
+	}
+
+	/**
+	 * Returns the update query.
+	 *
+	 * @return string the update query.
+	 */
+	private function getUpdateQuery()
+	{
+		$result = $this->getUpdateClause();
+
+		if ($where = $this->getWhereClause()) {
+			$result .= ' ' . $where;
+		}
+
+		if ($limit = $this->getLimitClause()) {
+			$result .= ' ' . $limit;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -218,9 +244,81 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the delete clause.
 	 */
-	public function getDeleteClause()
+	private function getDeleteClause()
 	{
 		return sprintf('DELETE FROM %s', $this->table);
+	}
+
+	/**
+	 * Returns the delete query.
+	 *
+	 * @return string the delete query.
+	 */
+	private function getDeleteQuery()
+	{
+
+		$result = $this->getDeleteClause();
+
+		if ($where = $this->getWhereClause()) {
+			$result .= ' ' . $where;
+		}
+
+		if ($limit = $this->getLimitClause()) {
+			$result .= ' ' . $limit;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function join($table, $primary, $operator, $secondary)
+	{
+		$this->join[] = ['INNER JOIN', $table, $primary, $operator, $secondary];
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function leftJoin($table, $primary, $operator, $secondary)
+	{
+		$this->join[] = ['LEFT JOIN', $table, $primary, $operator, $secondary];
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function rightJoin($table, $primary, $operator, $secondary)
+	{
+		$this->join[] = ['RIGHT JOIN', $table, $primary, $operator, $secondary];
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function crossJoin($table, $primary, $operator, $secondary)
+	{
+		$this->join[] = ['CROSS JOIN', $table, $primary, $operator, $secondary];
+
+		return $this;
+	}
+
+	private function getJoinClause()
+	{
+		$result = [];
+
+		foreach ($this->join as $key => $value) {
+			$result[] = sprintf('%s %s ON %s %s %s', $value[0], $value[1], $value[2], $value[3], $value[4]);
+		}
+
+		return implode(' ', $result);
 	}
 
 	/**
@@ -285,7 +383,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the group by clause.
 	 */
-	public function getGroupByClause()
+	private function getGroupByClause()
 	{
 		if (empty($this->groupBy)) {
 			return '';
@@ -315,7 +413,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the order by clause.
 	 */
-	public function getOrderByClause()
+	private function getOrderByClause()
 	{
 		if (empty($this->orderBy)) {
 			return '';
