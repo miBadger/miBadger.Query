@@ -95,7 +95,7 @@ class Query implements QueryInterface
 	public function where($column, $operator, $value)
 	{
 		if ($operator == 'IN') {
-			$this->whereIn($column, $value);
+			$this->whereIn($column, is_array($value) ? $value : [$value]);
 		} else {
 			$this->bindings['where'][] = $value;
 			$this->queryBuilder->where($column, $operator, sprintf(':where%s', count($this->bindings['where'])));
@@ -108,7 +108,7 @@ class Query implements QueryInterface
 	 * Set an additional where in condition.
 	 *
 	 * @param string $column
-	 * @param mixed $values
+	 * @param array $values
 	 * @return $this
 	 */
 	private function whereIn($column, $values)
