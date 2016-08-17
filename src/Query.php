@@ -228,8 +228,8 @@ class Query implements QueryInterface
 	/**
 	 * Returns a binding for the given clause and value.
 	 *
-	 * @param array $value
 	 * @param string $clause
+	 * @param string $value
 	 * @return string a binding for the given clause and value.
 	 */
 	private function addBinding($clause, $value)
@@ -242,8 +242,8 @@ class Query implements QueryInterface
 	/**
 	 * Return bindings for the given clause and values.
 	 *
-	 * @param array $values
 	 * @param string $clause
+	 * @param array $values
 	 * @return array bindings for the given clause and values.
 	 */
 	private function addBindings($clause, array $values)
@@ -260,8 +260,8 @@ class Query implements QueryInterface
 	/**
 	 * Returns a binding for the given clause and value.
 	 *
-	 * @param array $value
 	 * @param string $clause
+	 * @param string $value
 	 * @return string a binding for the given clause and value.
 	 */
 	private function setBinding($clause, $value)
@@ -272,8 +272,8 @@ class Query implements QueryInterface
 	/**
 	 * Return bindings for the given clause and values.
 	 *
-	 * @param array $values
 	 * @param string $clause
+	 * @param array $values
 	 * @return array bindings for the given clause and values.
 	 */
 	private function setBindings($clause, array $values)
