@@ -10,12 +10,14 @@
 
 namespace miBadger\Query;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * The query result test class.
  *
  * @since 1.0.0
  */
-class QueryResultTest extends \PHPUnit_Framework_TestCase
+class QueryResultTest extends TestCase
 {
 	public function setUp()
 	{
