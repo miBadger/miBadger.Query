@@ -17,11 +17,11 @@ use miBadger/Query/Query;
 /**
  * Get John Doe's email.
  */
-$query = new Query($pdo, $table)
+$query = (new Query($pdo, $table))
 	->select(['email'])
 	->where('first_name', 'LIKE', 'John')
 	->where('last_name', 'LIKE', 'Doe')
-	->limit(1);
+	->limit(3);
 
 /**
  * Get the query result.
