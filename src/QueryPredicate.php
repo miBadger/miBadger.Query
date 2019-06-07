@@ -29,7 +29,6 @@ class QueryPredicate implements QueryExpression
 				break;
 			default:
 				throw new QueryException(sprintf("Invalid predicate operator \"%s\"", $type));
-				break;
 		}
 
 		$this->conditions = array_merge([$left], $others);
@@ -48,7 +47,7 @@ class QueryPredicate implements QueryExpression
 
 	public function __toString()
 	{
-		$conditionSql;
+		$conditionSql = [];
 		foreach ($this->conditions as $cond) {
 			$conditionSql[] = sprintf('( %s )', (string) $cond);
 		}
@@ -66,7 +65,6 @@ class QueryPredicate implements QueryExpression
 				break;
 			default:
 				throw new QueryException(sprintf("Invalid predicate operator \"%s\"", $this->type));
-				break;
 		}
 		return $sql;
 	}

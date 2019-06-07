@@ -46,7 +46,6 @@ class QueryCondition implements QueryExpression
 
 			default:
 				throw new QueryException(sprintf("Unsupported operator \"%s\"", $operator));
-				break;
 		}
 	}
 

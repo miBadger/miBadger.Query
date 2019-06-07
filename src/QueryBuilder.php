@@ -31,7 +31,7 @@ class QueryBuilder implements QueryInterface
 	/* @var array The join conditions. */
 	private $join;
 
-	/* @var string The where clause. */
+	/* @var QueryExpression The where clause. */
 	private $where;
 
 	/* @var array The group by conditions. */
@@ -342,23 +342,6 @@ class QueryBuilder implements QueryInterface
 		}
 
 		return sprintf('WHERE %s', (string) $this->where);
-	}
-
-	/**
-	 * Returns the where condition.
-	 *
-	 * @param string $column
-	 * @param string $operator
-	 * @param mixed $value
-	 * @return string the where condition.
-	 */
-	private function getWhereCondition($column, $operator, $value)
-	{
-		if ($operator == 'IN') {
-			return sprintf('%s IN (%s)', $column, is_array($value) ? implode(', ', $value) : $value);
-		} else {
-			return sprintf('%s %s %s', $column, $operator, $value);
-		}
 	}
 
 	/**

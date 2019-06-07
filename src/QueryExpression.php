@@ -10,7 +10,14 @@ namespace miBadger\Query;
 
 interface QueryExpression
 {
+	/**
+	 * @return Array array of expressions that appear in this 
+	 */
 	public function getFlattenedConditions();
 	
+	/**
+	 * Returns the SQL Representation of this query expression as a string
+	 * @return string The SQL clause
+	 */
 	public function __toString();
 }
