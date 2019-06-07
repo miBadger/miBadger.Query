@@ -132,14 +132,15 @@ class Query implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function where($column, $operator, $value)
+	public function where(QueryExpression $exp)
 	{
-		if ($operator == 'IN' && is_array($value)) {
-			$this->queryBuilder->where($column, 'IN', $this->addBindings('where', $value));
-		} else {
-			$this->queryBuilder->where($column, $operator, $this->addBinding('where', $value));
+		$conds = $exp->getFlattenedConditions();
+
+		foreach ($conds as $cond) {
+			$cond->bind($this);
 		}
 
+		$this->queryBuilder->where($exp);
 		return $this;
 	}
 
@@ -231,7 +232,7 @@ class Query implements QueryInterface
 	 * @param string $value
 	 * @return string a binding for the given clause and value.
 	 */
-	private function addBinding($clause, $value)
+	public function addBinding($clause, $value)
 	{
 		$this->bindings[$clause][] = $value;
 
@@ -245,7 +246,7 @@ class Query implements QueryInterface
 	 * @param array $values
 	 * @return array bindings for the given clause and values.
 	 */
-	private function addBindings($clause, array $values)
+	public function addBindings($clause, array $values)
 	{
 		$result = [];
 
@@ -291,5 +292,76 @@ class Query implements QueryInterface
 		$this->bindings[$clause] = [];
 
 		return $this;
+	}
+
+	public static function Greater($left, $right)
+	{
+		return new QueryCondition($left, '>', $right);
+	}
+
+	public static function GreaterOrEqual($left, $right)
+	{
+		return new QueryCondition($left, '>=', $right);
+	}
+
+	public static function Lesser($left, $right)
+	{
+		return new QueryCondition($left, '<', $right);
+	}
+
+	public static function LessOrEqual($left, $right)
+	{
+		return new QueryCondition($left, '<=', $right);
+	}
+
+	public static function Equal($left, $right)
+	{
+		return new QueryCondition($left, '=', $right);
+	}
+
+	public static function NotEqual($left, $right)
+	{
+		return new QueryCondition($left, '<>', $right);
+	}
+
+	public static function NotLike($left, $right)
+	{
+		return new QueryCondition($left, 'NOT LIKE', $right);
+	}
+
+	public static function Like($left, $right)
+	{
+		return new QueryCondition($left, 'LIKE', $right);
+	}
+
+	public static function Is($left, $right)
+	{
+		return new QueryCondition($left, 'IS', $right);
+	}
+
+	public static function IsNot($left, $right)
+	{
+		return new QueryCondition($left, 'IS NOT', $right);
+	}
+
+	public static function In($needle, $haystack)
+	{
+		return new QueryCondition($needle, 'IN', $haystack);
+	}
+
+	// Predicate logic
+	public static function And(QueryExpression $left, QueryExpression ...$others)
+	{
+		return new QueryPredicate('AND', $left, ...$others);
+	}
+
+	public static function Or(QueryExpression $left, QueryExpression ...$others)
+	{
+		return new QueryPredicate('OR', $left, ...$others);
+	}
+
+	public static function Not(QueryExpression $exp)
+	{
+		return new QueryPredicate('NOT', $exp);
 	}
 }

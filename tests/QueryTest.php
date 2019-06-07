@@ -80,7 +80,7 @@ class QueryTest extends TestCase
 		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
 			->select()
-			->where('name', 'LIKE', 'John Doe');
+			->where(Query::Like('name', 'John Doe'));
 
 		$this->assertEquals('SELECT * FROM test WHERE name LIKE :where1', (string) $query);
 	}
@@ -90,10 +90,14 @@ class QueryTest extends TestCase
 		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
 			->select()
-			->where('name', 'LIKE', '%John%')
-			->where('name', 'NOT LIKE', '%Doe%');
+			->where(
+				Query::And(
+					Query::Like('name', '%John%'),
+					Query::NotLike('name', '%Doe%')
+					)
+				);
 
-		$this->assertEquals('SELECT * FROM test WHERE name LIKE :where1 AND name NOT LIKE :where2', (string) $query);
+		$this->assertEquals('SELECT * FROM test WHERE ( name LIKE :where1 ) AND ( name NOT LIKE :where2 )', (string) $query);
 	}
 
 	public function testSelectWhereKeyFunction()
@@ -101,7 +105,7 @@ class QueryTest extends TestCase
 		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
 			->select()
-			->where('LOWER(name)', 'LIKE', 'john doe');
+			->where(Query::Like('LOWER(name)', 'john doe'));
 
 		$this->assertEquals('SELECT * FROM test WHERE LOWER(name) LIKE :where1', (string) $query);
 	}
@@ -111,7 +115,7 @@ class QueryTest extends TestCase
 		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
 			->select()
-			->where('name', 'IN', ['John Doe', 'Jane Doe']);
+			->where(Query::In('name', ['John Doe', 'Jane Doe']));
 
 		$this->assertEquals('SELECT * FROM test WHERE name IN (:where1, :where2)', (string) $query);
 	}
@@ -171,7 +175,7 @@ class QueryTest extends TestCase
 		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
 			->update(['name' => 'John Doe'])
-			->where('id', '=', 1);
+			->where(Query::Equal('id', 1));
 
 		$this->assertEquals('UPDATE test SET name = :update1 WHERE id = :where1', (string) $query);
 	}
@@ -181,7 +185,7 @@ class QueryTest extends TestCase
 		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
 			->delete()
-			->where('id', '=', 1);
+			->where(Query::Equal('id', 1));
 
 		$this->assertEquals('DELETE FROM test WHERE id = :where1', (string) $query);
 	}
@@ -194,10 +198,14 @@ class QueryTest extends TestCase
 
 		$query = (new Query($pdo, 'test'))
 			->select()
-			->where('id', '=', 1)
-			->where('name', 'LIKE', 'John Doe')
-			->where('name', 'IS NOT', null)
-			->where('active', '=', true);
+			->where(
+				Query::And(
+					Query::Equal('id', 1),
+					Query::Like('name', 'John Doe'),
+					Query::IsNot('name', null),
+					Query::Equal('active', true)
+				)
+			);
 
 		$result = $query->execute()->fetch();
 

@@ -31,7 +31,7 @@ class QueryBuilder implements QueryInterface
 	/* @var array The join conditions. */
 	private $join;
 
-	/* @var array The where conditions. */
+	/* @var string The where clause. */
 	private $where;
 
 	/* @var array The group by conditions. */
@@ -55,7 +55,7 @@ class QueryBuilder implements QueryInterface
 	{
 		$this->table = $table;
 		$this->join = [];
-		$this->where = [];
+		$this->where = '';
 		$this->groupBy = [];
 		$this->orderBy = [];
 	}
@@ -323,9 +323,9 @@ class QueryBuilder implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function where($column, $operator, $value)
+	public function where(QueryExpression $whereClause)
 	{
-		$this->where[] = [$column, $operator, $value];
+		$this->where = $whereClause;
 
 		return $this;
 	}
@@ -341,13 +341,7 @@ class QueryBuilder implements QueryInterface
 			return '';
 		}
 
-		$result = [];
-
-		foreach ($this->where as $key => $value) {
-			$result[] = $this->getWhereCondition($value[0], $value[1], $value[2]);
-		}
-
-		return sprintf('WHERE %s', implode(' AND ', $result));
+		return sprintf('WHERE %s', (string) $this->where);
 	}
 
 	/**

@@ -110,16 +110,14 @@ interface QueryInterface
 	public function crossJoin($table, $primary, $operator, $secondary);
 
 	/**
-	 * Set an additional where condition.
+	 * Set the where condition
 	 *
-	 * @param string $column
-	 * @param string $operator
-	 * @param mixed $value
+	 * @param QueryExpression $expression the query expression
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Operators
 	 * @see https://en.wikipedia.org/wiki/Where_(SQL)
 	 */
-	public function where($column, $operator, $value);
+	public function where(QueryExpression $expression);
 
 	/**
 	 * Set an additional group by.
