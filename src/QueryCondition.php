@@ -40,6 +40,7 @@ class QueryCondition implements QueryExpression
 				$this->rightOperand = $right;
 				break;
 
+			case 'NOT IN':
 			case 'IN':
 				if (is_string($right)) {
 					$this->rightOperand = explode(', ', $right);
