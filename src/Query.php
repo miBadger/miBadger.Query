@@ -405,9 +405,20 @@ class Query implements QueryInterface
 	}
 
 	/**
-	 * Creates a "Greater than or equal to" Query condition, equivalent to mysql >= operator
-	 * @param string $left the lhs of the condition
-	 * @param string|Array $right the rhs of the condition
+	 * Creates a "Not in" Query condition, equivalent to mysql NOT IN operator
+	 * @param string $needle the parameter that cannot be present in the haystack
+	 * @param string|Array $haystack the values that can be searched through
+	 * @return QueryCondition the query condition
+	 */
+	public static function NotIn($needle, $haystack)
+	{
+		return new QueryCondition($needle, 'NOT IN', $haystack);
+	}
+
+	/**
+	 * Creates a "In" Query condition, equivalent to mysql IN operator
+	 * @param string $needle the parameter that has to be found
+	 * @param string|Array $haystack the values that can be searched through
 	 * @return QueryCondition the query condition
 	 */
 	public static function In($needle, $haystack)

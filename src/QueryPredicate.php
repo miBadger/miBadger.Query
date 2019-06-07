@@ -13,7 +13,7 @@ class QueryPredicate implements QueryExpression
 	/* @var string The kind of predicate (AND or OR) */
 	private $type;
 
-	/* @var \PDO The list of subclauses that are combined by this predicate. */
+	/* @var Array The list of subclauses that are combined by this predicate. */
 	private $conditions;
 
 	public function __construct($type, QueryExpression $left, QueryExpression ...$others)
