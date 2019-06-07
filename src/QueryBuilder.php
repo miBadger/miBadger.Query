@@ -55,7 +55,7 @@ class QueryBuilder implements QueryInterface
 	{
 		$this->table = $table;
 		$this->join = [];
-		$this->where = '';
+		$this->where = null;
 		$this->groupBy = [];
 		$this->orderBy = [];
 	}
