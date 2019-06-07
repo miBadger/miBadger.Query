@@ -294,72 +294,150 @@ class Query implements QueryInterface
 		return $this;
 	}
 
+	/**
+	 * Creates a Greater than Query condition, equivalent to mysql > operator
+	 * @param string $left the lhs of the condition
+	 * @param any $right the rhs of the condition
+	 * @return QueryCondition the query condition
+	 */
 	public static function Greater($left, $right)
 	{
 		return new QueryCondition($left, '>', $right);
 	}
 
+	/**
+	 * Creates a "Greater than or equal to" Query condition, equivalent to mysql >= operator
+	 * @param string $left the lhs of the condition
+	 * @param any $right the rhs of the condition
+	 * @return QueryCondition the query condition
+	 */
 	public static function GreaterOrEqual($left, $right)
 	{
 		return new QueryCondition($left, '>=', $right);
 	}
 
+	/**
+	 * Creates a "Lesser than" Query condition, equivalent to mysql < operator
+	 * @param string $left the lhs of the condition
+	 * @param any $right the rhs of the condition
+	 * @return QueryCondition the query condition
+	 */
 	public static function Lesser($left, $right)
 	{
 		return new QueryCondition($left, '<', $right);
 	}
 
+	/**
+	 * Creates a "Lesser than or equal to" Query condition, equivalent to mysql <= operator
+	 * @param string $left the lhs of the condition
+	 * @param any $right the rhs of the condition
+	 * @return QueryCondition the query condition
+	 */
 	public static function LessOrEqual($left, $right)
 	{
 		return new QueryCondition($left, '<=', $right);
 	}
 
+	/**
+	 * Creates an "equal to" Query condition, equivalent to mysql = operator
+	 * @param string $left the lhs of the condition
+	 * @param any $right the rhs of the condition
+	 * @return QueryCondition the query condition
+	 */
 	public static function Equal($left, $right)
 	{
 		return new QueryCondition($left, '=', $right);
 	}
 
+	/**
+	 * Creates a "Not equal to" Query condition, equivalent to mysql <> or != operators
+	 * @param string $left the lhs of the condition
+	 * @param any $right the rhs of the condition
+	 * @return QueryCondition the query condition
+	 */
 	public static function NotEqual($left, $right)
 	{
 		return new QueryCondition($left, '<>', $right);
 	}
 
+	/**
+	 * Creates a "Not Like" Query condition, equivalent to mysql NOT LIKE operator
+	 * @param string $left the lhs of the condition
+	 * @param any $right the rhs of the condition
+	 * @return QueryCondition the query condition
+	 */
 	public static function NotLike($left, $right)
 	{
 		return new QueryCondition($left, 'NOT LIKE', $right);
 	}
 
+	/**
+	 * Creates a "Like" Query condition, equivalent to mysql LIKE operator
+	 * @param string $left the lhs of the condition
+	 * @param any $right the rhs of the condition
+	 * @return QueryCondition the query condition
+	 */
 	public static function Like($left, $right)
 	{
 		return new QueryCondition($left, 'LIKE', $right);
 	}
 
+	/**
+	 * Creates an "Is" Query condition, equivalent to mysql IS operator
+	 * @param string $left the lhs of the condition
+	 * @param any $right the rhs of the condition
+	 * @return QueryCondition the query condition
+	 */
 	public static function Is($left, $right)
 	{
 		return new QueryCondition($left, 'IS', $right);
 	}
 
+	/**
+	 * Creates an "Is not" Query condition, equivalent to mysql IS NOT operator
+	 * @param string $left the lhs of the condition
+	 * @param any $right the rhs of the condition
+	 * @return QueryCondition the query condition
+	 */
 	public static function IsNot($left, $right)
 	{
 		return new QueryCondition($left, 'IS NOT', $right);
 	}
 
+	/**
+	 * Creates a "Greater than or equal to" Query condition, equivalent to mysql >= operator
+	 * @param string $left the lhs of the condition
+	 * @param string|Array $right the rhs of the condition
+	 * @return QueryCondition the query condition
+	 */
 	public static function In($needle, $haystack)
 	{
 		return new QueryCondition($needle, 'IN', $haystack);
 	}
 
-	// Predicate logic
+	/**
+	 * Creates an "AND" predicate from a variable number of expressions
+	 * @return QueryPredicate the predicate expression
+	 */
 	public static function And(QueryExpression $left, QueryExpression ...$others)
 	{
 		return new QueryPredicate('AND', $left, ...$others);
 	}
 
+	/**
+	 * Creates an "OR" predicate from a variable number of expressions
+	 * @return QueryPredicate the predicate expression
+	 */
 	public static function Or(QueryExpression $left, QueryExpression ...$others)
 	{
 		return new QueryPredicate('OR', $left, ...$others);
 	}
 
+	/**
+	 * Creates a "NOT" predicate negating an expression
+	 * @param QueryExpression The condition to be negated
+	 * @return QueryPredicate the predicate expression
+	 */
 	public static function Not(QueryExpression $exp)
 	{
 		return new QueryPredicate('NOT', $exp);

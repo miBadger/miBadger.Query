@@ -10,8 +10,10 @@ namespace miBadger\Query;
 
 class QueryPredicate implements QueryExpression
 {
+	/* @var string The kind of predicate (AND or OR) */
 	private $type;
 
+	/* @var \PDO The list of subclauses that are combined by this predicate. */
 	private $conditions;
 
 	public function __construct($type, QueryExpression $left, QueryExpression ...$others)
@@ -34,6 +36,9 @@ class QueryPredicate implements QueryExpression
 		$this->conditions = array_merge([$left], $others);
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getFlattenedConditions()
 	{
 		$conditions = [];
@@ -45,6 +50,9 @@ class QueryPredicate implements QueryExpression
 		return $conditions;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function __toString()
 	{
 		$conditionSql = [];

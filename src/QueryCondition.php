@@ -10,12 +10,16 @@ namespace miBadger\Query;
 
 class QueryCondition implements QueryExpression
 {
+	/* @var string The lhs of the query condition. */
 	private $leftOperand;
 
+	/* @var boolean|string|int|Array The rhs of the query condition. */
 	private $rightOperand;
 
+	/* @var string The binary operator of this condition. */
 	private $operator;
 
+	/* @var string|Array The binding(s) for the rhs of the condition */
 	private $binding;
 
 	public function __construct($left, $operator, $right)
@@ -49,6 +53,9 @@ class QueryCondition implements QueryExpression
 		}
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getFlattenedConditions()
 	{
 		return [$this];
@@ -63,6 +70,9 @@ class QueryCondition implements QueryExpression
 		}
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function __toString()
 	{
 		if ($this->binding === null) {

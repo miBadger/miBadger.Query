@@ -32,7 +32,7 @@ $query->delete();
 /**
  * Set an additional where condition.
  */
-$query->where($column, $operator, $value);
+$queryBuilder->where(Query::equal($fieldname, $value));
 
 /**
  * Set an additional group by.
