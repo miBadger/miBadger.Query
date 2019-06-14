@@ -8,6 +8,10 @@
  */
 namespace miBadger\Query;
 
+/**
+ *
+ * @since 2.0.0
+ */
 class QueryPredicate implements QueryExpression
 {
 	/* @var string The kind of predicate (AND or OR) */

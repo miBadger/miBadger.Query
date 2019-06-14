@@ -8,6 +8,10 @@
  */
 namespace miBadger\Query;
 
+/**
+ *
+ * @since 2.0.0
+ */
 class QueryCondition implements QueryExpression
 {
 	/* @var string The lhs of the query condition. */
