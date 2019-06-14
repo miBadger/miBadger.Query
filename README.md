@@ -12,15 +12,17 @@ The Query Component.
 ```php
 <?php
 
-use miBadger/Query/Query;
+use miBadger\Query\Query;
 
 /**
  * Get John Doe's email.
  */
 $query = (new Query($pdo, $table))
 	->select(['email'])
-	->where('first_name', 'LIKE', 'John')
-	->where('last_name', 'LIKE', 'Doe')
+	->where(
+		Query::And(
+			Query::Like('first_name', 'John'),
+			Query::Like('last_name', 'Doe')))
 	->limit(3);
 
 /**
