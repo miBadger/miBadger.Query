@@ -8,6 +8,10 @@
  */
 namespace miBadger\Query;
 
+/**
+ *
+ * @since 2.0.0
+ */
 class QueryPredicate implements QueryExpression
 {
 	/* @var string The kind of predicate (AND or OR) */
@@ -16,7 +20,13 @@ class QueryPredicate implements QueryExpression
 	/* @var Array The list of subclauses that are combined by this predicate. */
 	private $conditions;
 
-	public function __construct($type, QueryExpression $left, QueryExpression ...$others)
+	/**
+	 * Constructs a new query predicate of the given type
+	 * @param string $type the predicate type. either 'AND', 'OR' or 'NOT'
+	 * @param QueryExpression $left the first query expression to be used by this predicate
+	 * @param QueryExpression ...$others the remaining query expressions, if applicable
+	 */
+	public function __construct(string $type, QueryExpression $left, QueryExpression ...$others)
 	{
 		switch ($type) {
 			case 'AND':

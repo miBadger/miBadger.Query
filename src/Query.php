@@ -297,7 +297,7 @@ class Query implements QueryInterface
 	/**
 	 * Creates a Greater than Query condition, equivalent to mysql > operator
 	 * @param string $left the lhs of the condition
-	 * @param any $right the rhs of the condition
+	 * @param mixed $right the rhs of the condition
 	 * @return QueryCondition the query condition
 	 */
 	public static function Greater($left, $right)
@@ -308,7 +308,7 @@ class Query implements QueryInterface
 	/**
 	 * Creates a "Greater than or equal to" Query condition, equivalent to mysql >= operator
 	 * @param string $left the lhs of the condition
-	 * @param any $right the rhs of the condition
+	 * @param mixed $right the rhs of the condition
 	 * @return QueryCondition the query condition
 	 */
 	public static function GreaterOrEqual($left, $right)
@@ -317,20 +317,20 @@ class Query implements QueryInterface
 	}
 
 	/**
-	 * Creates a "Lesser than" Query condition, equivalent to mysql < operator
+	 * Creates a "Less than" Query condition, equivalent to mysql < operator
 	 * @param string $left the lhs of the condition
-	 * @param any $right the rhs of the condition
+	 * @param mixed $right the rhs of the condition
 	 * @return QueryCondition the query condition
 	 */
-	public static function Lesser($left, $right)
+	public static function Less($left, $right)
 	{
 		return new QueryCondition($left, '<', $right);
 	}
 
 	/**
-	 * Creates a "Lesser than or equal to" Query condition, equivalent to mysql <= operator
+	 * Creates a "Less than or equal to" Query condition, equivalent to mysql <= operator
 	 * @param string $left the lhs of the condition
-	 * @param any $right the rhs of the condition
+	 * @param mixed $right the rhs of the condition
 	 * @return QueryCondition the query condition
 	 */
 	public static function LessOrEqual($left, $right)
@@ -341,7 +341,7 @@ class Query implements QueryInterface
 	/**
 	 * Creates an "equal to" Query condition, equivalent to mysql = operator
 	 * @param string $left the lhs of the condition
-	 * @param any $right the rhs of the condition
+	 * @param mixed $right the rhs of the condition
 	 * @return QueryCondition the query condition
 	 */
 	public static function Equal($left, $right)
@@ -352,7 +352,7 @@ class Query implements QueryInterface
 	/**
 	 * Creates a "Not equal to" Query condition, equivalent to mysql <> or != operators
 	 * @param string $left the lhs of the condition
-	 * @param any $right the rhs of the condition
+	 * @param mixed $right the rhs of the condition
 	 * @return QueryCondition the query condition
 	 */
 	public static function NotEqual($left, $right)
@@ -363,7 +363,7 @@ class Query implements QueryInterface
 	/**
 	 * Creates a "Not Like" Query condition, equivalent to mysql NOT LIKE operator
 	 * @param string $left the lhs of the condition
-	 * @param any $right the rhs of the condition
+	 * @param mixed $right the rhs of the condition
 	 * @return QueryCondition the query condition
 	 */
 	public static function NotLike($left, $right)
@@ -374,7 +374,7 @@ class Query implements QueryInterface
 	/**
 	 * Creates a "Like" Query condition, equivalent to mysql LIKE operator
 	 * @param string $left the lhs of the condition
-	 * @param any $right the rhs of the condition
+	 * @param mixed $right the rhs of the condition
 	 * @return QueryCondition the query condition
 	 */
 	public static function Like($left, $right)
@@ -385,7 +385,7 @@ class Query implements QueryInterface
 	/**
 	 * Creates an "Is" Query condition, equivalent to mysql IS operator
 	 * @param string $left the lhs of the condition
-	 * @param any $right the rhs of the condition
+	 * @param mixed $right the rhs of the condition
 	 * @return QueryCondition the query condition
 	 */
 	public static function Is($left, $right)
@@ -396,7 +396,7 @@ class Query implements QueryInterface
 	/**
 	 * Creates an "Is not" Query condition, equivalent to mysql IS NOT operator
 	 * @param string $left the lhs of the condition
-	 * @param any $right the rhs of the condition
+	 * @param mixed $right the rhs of the condition
 	 * @return QueryCondition the query condition
 	 */
 	public static function IsNot($left, $right)

@@ -8,6 +8,10 @@
  */
 namespace miBadger\Query;
 
+/**
+ *
+ * @since 2.0.0
+ */
 class QueryCondition implements QueryExpression
 {
 	/* @var string The lhs of the query condition. */
@@ -22,7 +26,13 @@ class QueryCondition implements QueryExpression
 	/* @var string|Array The binding(s) for the rhs of the condition */
 	private $binding;
 
-	public function __construct($left, $operator, $right)
+	/**
+	 * Constructs a new Query condition for the supplied operator and operands
+	 * @param mixed $left the lhs of the expression
+	 * @param string $operator the SQL operator
+	 * @param mixed $right the rhs of the expression
+	 */
+	public function __construct($left, string $operator, $right)
 	{
 		$this->leftOperand = $left;
 		$this->operator = $operator;
@@ -62,6 +72,10 @@ class QueryCondition implements QueryExpression
 		return [$this];
 	}
 
+	/**
+	 * Adds a binding to the supplied query for these query condition parameters
+	 * @param miBadger\Query\Query $query the Query to bind to
+	 */
 	public function bind(Query $query)
 	{
 		if (is_array($this->rightOperand)) {
