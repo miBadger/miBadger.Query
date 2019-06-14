@@ -98,6 +98,27 @@ class QueryBuilderTest extends TestCase
 		$this->assertEquals('SELECT * FROM test WHERE ( name LIKE John Doe ) AND ( email LIKE john@doe.com )', (string) $query);
 	}
 
+	public function testSelectWhereOr()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->where(Query::Or(
+					Query::Like('name', 'John Doe'),
+					Query::Like('email', 'john@doe.com')
+				));
+
+		$this->assertEquals('SELECT * FROM test WHERE ( name LIKE John Doe ) OR ( email LIKE john@doe.com )', (string) $query);
+	}
+
+	public function testSelectWhereNot()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->where(Query::Not(Query::Like('name', 'John Doe')));
+
+		$this->assertEquals('SELECT * FROM test WHERE NOT ( name LIKE John Doe )', (string) $query);
+	}
+
 	public function testSeelectWhereIn()
 	{
 		$query = (new QueryBuilder('test'))

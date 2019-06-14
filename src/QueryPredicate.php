@@ -23,12 +23,14 @@ class QueryPredicate implements QueryExpression
 			case 'OR':
 				$this->type = $type;
 				break;
+
 			case 'NOT':
 				if (!empty($others)) {
 					throw new QueryException("NOT Operator can only accept 1 argument");
 				}
 				$this->type = $type;
 				break;
+				
 			default:
 				throw new QueryException(sprintf("Invalid predicate operator \"%s\"", $type));
 		}
