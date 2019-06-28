@@ -96,6 +96,17 @@ class QueryBuilderTest extends TestCase
 				));
 
 		$this->assertEquals('SELECT * FROM test WHERE ( name LIKE John Doe ) AND ( email LIKE john@doe.com )', (string) $query);
+
+		$clauses = [
+			Query::Like('name', 'John Doe'),
+			Query::Like('email', 'john@doe.com')
+		];
+		
+		$query = (new QueryBuilder('test'))
+			->select()
+			->where(Query::AndArray($clauses));
+
+		$this->assertEquals('SELECT * FROM test WHERE ( name LIKE John Doe ) AND ( email LIKE john@doe.com )', (string) $query);
 	}
 
 	public function testSelectWhereOr()
@@ -106,6 +117,17 @@ class QueryBuilderTest extends TestCase
 					Query::Like('name', 'John Doe'),
 					Query::Like('email', 'john@doe.com')
 				));
+
+		$this->assertEquals('SELECT * FROM test WHERE ( name LIKE John Doe ) OR ( email LIKE john@doe.com )', (string) $query);
+		
+		$clauses = [
+			Query::Like('name', 'John Doe'),
+			Query::Like('email', 'john@doe.com')
+		];
+
+		$query = (new QueryBuilder('test'))
+			->select()
+			->where(Query::OrArray($clauses));
 
 		$this->assertEquals('SELECT * FROM test WHERE ( name LIKE John Doe ) OR ( email LIKE john@doe.com )', (string) $query);
 	}

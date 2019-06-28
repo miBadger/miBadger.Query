@@ -436,12 +436,46 @@ class Query implements QueryInterface
 	}
 
 	/**
+	 * Combines an array of QueryExpression clauses into an AND predicate
+	 * @return miBadger\Query\QueryExpression|null Either null (if array contains no clauses), 
+	 * 				the single clause in the input array, or a QueryPredicate combining the clauses
+	 */
+	public static function AndArray(Array $clauses)
+	{
+		if (count($clauses) == 0) {
+			return null;
+		} else if (count($clauses) == 1) 
+		{
+			return $clauses[0];
+		} else {
+			return new QueryPredicate('AND', $clauses[0], ...array_slice($clauses, 1));
+		}
+	}
+
+	/**
 	 * Creates an "OR" predicate from a variable number of expressions
 	 * @return QueryPredicate the predicate expression
 	 */
 	public static function Or(QueryExpression $left, QueryExpression ...$others)
 	{
 		return new QueryPredicate('OR', $left, ...$others);
+	}
+
+	/**
+	 * Combines an array of QueryExpression clauses into an OR predicate
+	 * @return miBadger\Query\QueryExpression|null Either null (if array contains no clauses), 
+	 * 				the single clause in the input array, or a QueryPredicate combining the clauses
+	 */
+	public static function OrArray(Array $clauses)
+	{
+		if (count($clauses) == 0) {
+			return null;
+		} else if (count($clauses) == 1)
+		{
+			return $clauses[0];
+		} else {
+			return new QueryPredicate('OR', $clauses[0], ...array_slice($clauses, 1));
+		}
 	}
 
 	/**
