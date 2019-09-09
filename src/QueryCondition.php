@@ -40,6 +40,8 @@ class QueryCondition implements QueryExpression
 
 		switch ($operator) {
 			case '<':
+			case '<=':
+			case '>=':
 			case '>':
 			case '=':
 			case '<>':

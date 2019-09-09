@@ -83,6 +83,12 @@ class QueryTest extends TestCase
 			->where(Query::Like('name', 'John Doe'));
 
 		$this->assertEquals('SELECT * FROM test WHERE name LIKE :where1', (string) $query);
+
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->where(Query::LessOrEqual('name', 'John Doe'));
+			
+		$this->assertEquals('SELECT * FROM test WHERE name <= :where1', (string) $query);
 	}
 
 	public function testSelectWhereKeyDuplicate()
