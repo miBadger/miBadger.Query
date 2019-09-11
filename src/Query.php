@@ -144,6 +144,18 @@ class Query implements QueryInterface
 		return $this;
 	}
 
+	public function having(QueryExpression $exp)
+	{
+		$conds = $exp->getFlattenedConditions();
+
+		foreach ($conds as $cond) {
+			$cond->bind($this, 'having');
+		}
+
+		$this->queryBuilder->having($exp);
+		return $this;
+	}
+
 	/**
 	 * {@inheritdoc}
 	 */

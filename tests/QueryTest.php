@@ -136,6 +136,37 @@ class QueryTest extends TestCase
 		$this->assertEquals('SELECT * FROM test GROUP BY name', (string) $query);
 	}
 
+	public function testSelectHaving()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select(['name', 'count(*) as count'])
+			->groupBy('name')
+			->having(Query::Greater('count', 3));
+
+		$this->assertEquals('SELECT name, count(*) as count FROM test GROUP BY name HAVING count > :having1', (string) $query);
+
+		// Test having multiple conditions
+		$query = (new Query($pdo, 'test'))
+			->select(['name', 'count(*) as count'])
+			->groupBy('name')
+			->having(Query::And(
+				Query::Greater('count', 3),
+				Query::Less('count', 5)
+			));
+
+		$this->assertEquals('SELECT name, count(*) as count FROM test GROUP BY name HAVING ( count > :having1 ) AND ( count < :having2 )', (string) $query);
+
+		// Test combined where and having conditions
+		$query = (new Query($pdo, 'test'))
+			->select(['name', 'count(*) as count'])
+			->groupBy('name')
+			->having(Query::Greater('count', 3))
+			->where(Query::Like('name' , '%foo'));
+
+		$this->assertEquals('SELECT name, count(*) as count FROM test WHERE name LIKE :where1 GROUP BY name HAVING count > :having1', (string) $query);
+	}
+
 	public function testSelectOrderBy()
 	{
 		$pdo = new \PDO('sqlite::memory:');

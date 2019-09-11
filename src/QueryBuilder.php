@@ -127,6 +127,10 @@ class QueryBuilder implements QueryInterface
 			$result .= ' ' . $groupBy;
 		}
 
+		if ($having = $this->getHavingClause()) {
+			$result .= ' ' . $having;
+		}
+
 		if ($orderBy = $this->getOrderByClause()) {
 			$result .= ' ' . $orderBy;
 		}
@@ -342,6 +346,29 @@ class QueryBuilder implements QueryInterface
 		}
 
 		return sprintf('WHERE %s', (string) $this->where);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function having(QueryExpression $havingClause)
+	{
+		$this->having = $havingClause;
+
+		return $this;
+	}
+
+	/**
+	 * Returns the having clause
+	 * 
+	 * @return string the having clause
+	 */
+	private function getHavingClause()
+	{
+		if (empty($this->having)) {
+			return '';
+		}
+		return sprintf('HAVING %s', (string) $this->having);
 	}
 
 	/**
