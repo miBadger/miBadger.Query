@@ -17,20 +17,15 @@ namespace miBadger\Query;
  */
 interface QueryInterface
 {
-	const SELECT = 'SELECT';
-	const INSERT = 'INSERT INTO';
-	const UPDATE = 'UPDATE';
-	const DELETE = 'DELETE';
-
 	/**
 	 * Set the modifier to select and select the given columns.
 	 *
-	 * @param array|string $columns = ['*']
+	 * @param array $columns = ['*']
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Queries
 	 * @see https://en.wikipedia.org/wiki/Select_(SQL)
 	 */
-	public function select($columns = ['*']);
+	public function select(Array $columns = ['*'], bool $escape = true);
 
 	/**
 	 * Set the modifier to insert and insert the given values.

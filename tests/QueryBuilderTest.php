@@ -219,7 +219,7 @@ class QueryBuilderTest extends TestCase
 		$query = (new QueryBuilder('test'))
 			->insert(['name' => 'John Doe']);
 
-		$this->assertEquals('INSERT INTO test (name) VALUES (John Doe)', (string) $query);
+		$this->assertEquals('INSERT INTO test (`name`) VALUES (John Doe)', (string) $query);
 	}
 
 	public function testInsertMultiple()
@@ -227,7 +227,7 @@ class QueryBuilderTest extends TestCase
 		$query = (new QueryBuilder('test'))
 			->insert(['name' => 'John Doe', 'email' => 'john@doe.com']);
 
-		$this->assertEquals('INSERT INTO test (name, email) VALUES (John Doe, john@doe.com)', (string) $query);
+		$this->assertEquals('INSERT INTO test (`name`, `email`) VALUES (John Doe, john@doe.com)', (string) $query);
 	}
 
 	public function testUpdate()
@@ -236,7 +236,7 @@ class QueryBuilderTest extends TestCase
 			->update(['name' => 'John Doe'])
 			->where(Query::Equal('id', 1));
 
-		$this->assertEquals('UPDATE test SET name = John Doe WHERE id = 1', (string) $query);
+		$this->assertEquals('UPDATE test SET `name` = John Doe WHERE id = 1', (string) $query);
 	}
 
 	public function testUpdateMultiple()
@@ -245,7 +245,7 @@ class QueryBuilderTest extends TestCase
 			->update(['name' => 'John Doe', 'email' => 'john@doe.com'])
 			->where(Query::Equal('id', 1));
 
-		$this->assertEquals('UPDATE test SET name = John Doe, email = john@doe.com WHERE id = 1', (string) $query);
+		$this->assertEquals('UPDATE test SET `name` = John Doe, `email` = john@doe.com WHERE id = 1', (string) $query);
 	}
 
 	public function testUpdateLimit()
@@ -255,7 +255,7 @@ class QueryBuilderTest extends TestCase
 			->where(Query::Equal('id', 1))
 			->limit(1);
 
-		$this->assertEquals('UPDATE test SET name = John Doe WHERE id = 1 LIMIT 1', (string) $query);
+		$this->assertEquals('UPDATE test SET `name` = John Doe WHERE id = 1 LIMIT 1', (string) $query);
 	}
 
 	public function testDelete()

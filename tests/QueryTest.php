@@ -35,6 +35,24 @@ class QueryTest extends TestCase
 		$this->assertEquals('SELECT * FROM test', (string) $query);
 	}
 
+	public function testSelectOneColumn()
+	{
+		$pdo = new \PDO('sqlite::memory');
+		$query = (new Query($pdo, 'test'))
+			->select(['id']);
+
+		$this->assertEquals('SELECT `id` FROM test', (string) $query);
+	}
+
+	public function testSelectOneColumnUnquoted()
+	{
+		$pdo = new \PDO('sqlite::memory');
+		$query = (new Query($pdo, 'test'))
+			->select(['id'], false);
+
+		$this->assertEquals('SELECT id FROM test', (string) $query);
+	}
+
 	public function testSelectJoin()
 	{
 		$pdo = new \PDO('sqlite::memory:');
@@ -91,6 +109,19 @@ class QueryTest extends TestCase
 		$this->assertEquals('SELECT * FROM test WHERE name <= :where1', (string) $query);
 	}
 
+	/**
+	 * @expectedException miBadger\Query\QueryException
+	 * @expectedExceptionMessage Can only call where on query once.
+	 */
+	public function testSelectWhereThrowsException()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->where(Query::Like('name', 'John Doe'))
+			->where(Query::Like('name', 'John Doe'));
+	}
+
 	public function testSelectWhereKeyDuplicate()
 	{
 		$pdo = new \PDO('sqlite::memory:');
@@ -140,7 +171,7 @@ class QueryTest extends TestCase
 	{
 		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
-			->select(['name', 'count(*) as count'])
+			->select(['name', 'count(*) as count'], false)
 			->groupBy('name')
 			->having(Query::Greater('count', 3));
 
@@ -148,7 +179,7 @@ class QueryTest extends TestCase
 
 		// Test having multiple conditions
 		$query = (new Query($pdo, 'test'))
-			->select(['name', 'count(*) as count'])
+			->select(['name', 'count(*) as count'], false)
 			->groupBy('name')
 			->having(Query::And(
 				Query::Greater('count', 3),
@@ -159,7 +190,7 @@ class QueryTest extends TestCase
 
 		// Test combined where and having conditions
 		$query = (new Query($pdo, 'test'))
-			->select(['name', 'count(*) as count'])
+			->select(['name', 'count(*) as count'], false)
 			->groupBy('name')
 			->having(Query::Greater('count', 3))
 			->where(Query::Like('name' , '%foo'));
@@ -204,7 +235,7 @@ class QueryTest extends TestCase
 		$query = (new Query($pdo, 'test'))
 			->insert(['name' => 'John Doe']);
 
-		$this->assertEquals('INSERT INTO test (name) VALUES (:insert1)', (string) $query);
+		$this->assertEquals('INSERT INTO test (`name`) VALUES (:insert1)', (string) $query);
 	}
 
 	public function testUpdate()
@@ -214,7 +245,7 @@ class QueryTest extends TestCase
 			->update(['name' => 'John Doe'])
 			->where(Query::Equal('id', 1));
 
-		$this->assertEquals('UPDATE test SET name = :update1 WHERE id = :where1', (string) $query);
+		$this->assertEquals('UPDATE test SET `name` = :update1 WHERE id = :where1', (string) $query);
 	}
 
 	public function testDelete()
@@ -230,6 +261,7 @@ class QueryTest extends TestCase
 	public function testExecute()
 	{
 		$pdo = new \PDO('sqlite::memory:');
+		$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 		$pdo->query('CREATE TABLE IF NOT EXISTS `test` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255), `active` BIT)');
 		$pdo->query('INSERT INTO `test` (`id`, `name`, `active`) VALUES (1, "John Doe", 1)');
 
@@ -248,5 +280,15 @@ class QueryTest extends TestCase
 
 		$this->assertEquals('1', $result['id']);
 		$this->assertEquals('John Doe', $result['name']);
+
+		// Test if it's possible to select a query with column name that is a reserved keyword
+		$pdo->query('CREATE TABLE IF NOT EXISTS `test2` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255), `index` INTEGER)');
+		$pdo->query('INSERT INTO `test2` (`id`, `name`, `index`) VALUES (1, "John Doe", 1)');
+
+		$query = (new Query($pdo, 'test2'))
+			->select(['index']);
+
+		$result = $query->execute()->fetch();
+		$this->assertEquals($result['index'], 1);
 	}
 }

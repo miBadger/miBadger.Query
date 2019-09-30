@@ -14,8 +14,13 @@ namespace miBadger\Query;
  *
  * @since 1.0.0
  */
-class QueryBuilder implements QueryInterface
+class QueryBuilder
 {
+	const SELECT = 'SELECT';
+	const INSERT = 'INSERT INTO';
+	const UPDATE = 'UPDATE';
+	const DELETE = 'DELETE';
+	
 	/* @var string The modifier. SELECT, INSERT INTO, UPDATE or DELETE */
 	private $modifier;
 
@@ -32,7 +37,7 @@ class QueryBuilder implements QueryInterface
 	private $join;
 
 	/* @var QueryExpression The where clause. */
-	private $where;
+	public $where;
 
 	/* @var array The group by conditions. */
 	private $groupBy;
@@ -46,6 +51,9 @@ class QueryBuilder implements QueryInterface
 	/* @var string The offset. */
 	private $offset;
 
+	/* @var QueryExpression The having clause. */
+	public $having;
+
 	/**
 	 * Construct a query builder object with the given table.
 	 *
@@ -54,10 +62,15 @@ class QueryBuilder implements QueryInterface
 	public function __construct($table)
 	{
 		$this->table = $table;
+		$this->columns = [];
+		$this->values = [];
 		$this->join = [];
 		$this->where = null;
 		$this->groupBy = [];
 		$this->orderBy = [];
+		$this->limit = null;
+		$this->offset = null;
+		$this->having = null;
 	}
 
 	/**
@@ -168,7 +181,7 @@ class QueryBuilder implements QueryInterface
 		$values = [];
 
 		foreach ($this->values as $key => $value) {
-			$columns[] = $key;
+			$columns[] = sprintf('`%s`', $key);
 			$values[] = sprintf('%s', $value);
 		}
 
@@ -206,7 +219,7 @@ class QueryBuilder implements QueryInterface
 		$placeholders = [];
 
 		foreach ($this->values as $key => $value) {
-			$placeholders[] = sprintf('%s = %s', $key, $value);
+			$placeholders[] = sprintf('`%s` = %s', $key, $value);
 		}
 
 		return sprintf('UPDATE %s SET %s', $this->table, implode(', ', $placeholders));

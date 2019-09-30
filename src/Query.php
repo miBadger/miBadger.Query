@@ -51,9 +51,17 @@ class Query implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function select($columns = ['*'])
+	public function select(Array $columns = ['*'], bool $quote = true)
 	{
-		$this->queryBuilder->select(is_array($columns) ? $columns : func_get_args());
+		if ($quote === true && $columns !== ['*']) {
+			$quotedColumns = [];
+			foreach ($columns as $column) {
+				$quotedColumns[] = '`' . $column . '`';
+			}
+			$this->queryBuilder->select($quotedColumns);
+		} else {
+			$this->queryBuilder->select($columns);
+		}
 
 		return $this;
 	}
@@ -136,6 +144,10 @@ class Query implements QueryInterface
 	{
 		$conds = $exp->getFlattenedConditions();
 
+		if ($this->queryBuilder->where !== null) {
+			throw new QueryException('Can only call where on query once.');
+		}
+
 		foreach ($conds as $cond) {
 			$cond->bind($this);
 		}
@@ -147,6 +159,10 @@ class Query implements QueryInterface
 	public function having(QueryExpression $exp)
 	{
 		$conds = $exp->getFlattenedConditions();
+
+		if ($this->queryBuilder->having !== null) {
+			throw new QueryException('Can only call having on query once.');
+		}
 
 		foreach ($conds as $cond) {
 			$cond->bind($this, 'having');
@@ -308,8 +324,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates a Greater than Query condition, equivalent to mysql > operator
-	 * @param string $left the lhs of the condition
-	 * @param mixed $right the rhs of the condition
+	 * @param string $left the lhs of the condition. Unescaped
+	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function Greater($left, $right)
@@ -319,8 +335,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates a "Greater than or equal to" Query condition, equivalent to mysql >= operator
-	 * @param string $left the lhs of the condition
-	 * @param mixed $right the rhs of the condition
+	 * @param string $left the lhs of the condition. Unescaped
+	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function GreaterOrEqual($left, $right)
@@ -330,8 +346,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates a "Less than" Query condition, equivalent to mysql < operator
-	 * @param string $left the lhs of the condition
-	 * @param mixed $right the rhs of the condition
+	 * @param string $left the lhs of the condition. Unescaped
+	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function Less($left, $right)
@@ -341,8 +357,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates a "Less than or equal to" Query condition, equivalent to mysql <= operator
-	 * @param string $left the lhs of the condition
-	 * @param mixed $right the rhs of the condition
+	 * @param string $left the lhs of the condition. Unescaped
+	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function LessOrEqual($left, $right)
@@ -352,8 +368,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates an "equal to" Query condition, equivalent to mysql = operator
-	 * @param string $left the lhs of the condition
-	 * @param mixed $right the rhs of the condition
+	 * @param string $left the lhs of the condition. Unescaped
+	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function Equal($left, $right)
@@ -363,8 +379,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates a "Not equal to" Query condition, equivalent to mysql <> or != operators
-	 * @param string $left the lhs of the condition
-	 * @param mixed $right the rhs of the condition
+	 * @param string $left the lhs of the condition. Unescaped
+	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function NotEqual($left, $right)
@@ -374,8 +390,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates a "Not Like" Query condition, equivalent to mysql NOT LIKE operator
-	 * @param string $left the lhs of the condition
-	 * @param mixed $right the rhs of the condition
+	 * @param string $left the lhs of the condition. Unescaped
+	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function NotLike($left, $right)
@@ -385,8 +401,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates a "Like" Query condition, equivalent to mysql LIKE operator
-	 * @param string $left the lhs of the condition
-	 * @param mixed $right the rhs of the condition
+	 * @param string $left the lhs of the condition. Unescaped
+	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function Like($left, $right)
@@ -396,8 +412,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates an "Is" Query condition, equivalent to mysql IS operator
-	 * @param string $left the lhs of the condition
-	 * @param mixed $right the rhs of the condition
+	 * @param string $left the lhs of the condition. Unescaped
+	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function Is($left, $right)
@@ -407,8 +423,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates an "Is not" Query condition, equivalent to mysql IS NOT operator
-	 * @param string $left the lhs of the condition
-	 * @param mixed $right the rhs of the condition
+	 * @param string $left the lhs of the condition. Unescaped
+	 * @param string|array $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function IsNot($left, $right)
@@ -418,8 +434,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates a "Not in" Query condition, equivalent to mysql NOT IN operator
-	 * @param string $needle the parameter that cannot be present in the haystack
-	 * @param string|Array $haystack the values that can be searched through
+	 * @param string $needle the parameter that cannot be present in the haystack. Unescaped
+	 * @param string|Array $haystack the values that can be searched through. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function NotIn($needle, $haystack)
@@ -429,8 +445,8 @@ class Query implements QueryInterface
 
 	/**
 	 * Creates a "In" Query condition, equivalent to mysql IN operator
-	 * @param string $needle the parameter that has to be found
-	 * @param string|Array $haystack the values that can be searched through
+	 * @param string $needle the parameter that has to be found. Unescaped
+	 * @param string|Array $haystack the values that can be searched through. Escaped
 	 * @return QueryCondition the query condition
 	 */
 	public static function In($needle, $haystack)

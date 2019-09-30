@@ -94,7 +94,6 @@ class QueryCondition implements QueryExpression
 	{
 		if ($this->binding === null) {
 			$rhs = $this->rightOperand;
-			// throw new QueryException("Currently unbound conditions are not supported!");
 		} else {
 			$rhs = $this->binding;
 		}
