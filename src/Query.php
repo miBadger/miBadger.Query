@@ -238,7 +238,7 @@ class Query implements QueryInterface
 	 * @param mixed $value
 	 * @return int the data type of the given value.
 	 */
-	private function getPdoDataType($value)
+	protected function getPdoDataType($value)
 	{
 		$result = \PDO::PARAM_STR;
 

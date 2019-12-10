@@ -75,10 +75,10 @@ class QueryPredicate implements QueryExpression
 		$sql = '';
 		switch ($this->type) {
 			case 'AND':
-				$sql = join($conditionSql, ' AND ');
+				$sql = join(' AND ', $conditionSql);
 				break;
 			case 'OR':
-				$sql = join($conditionSql, ' OR ');
+				$sql = join(' OR ', $conditionSql);
 				break;
 			case 'NOT':
 				$sql = sprintf('NOT %s', $conditionSql[0]);
