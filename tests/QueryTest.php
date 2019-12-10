@@ -109,12 +109,10 @@ class QueryTest extends TestCase
 		$this->assertEquals('SELECT * FROM test WHERE name <= :where1', (string) $query);
 	}
 
-	/**
-	 * @expectedException miBadger\Query\QueryException
-	 * @expectedExceptionMessage Can only call where on query once.
-	 */
 	public function testSelectWhereThrowsException()
 	{
+		$this->expectException(QueryException::class);
+		$this->expectExceptionMessage("Can only call where on query once.");
 		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
 			->select()
