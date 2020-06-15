@@ -114,7 +114,7 @@ class QueryBuilder
 	 *
 	 * @return string the select clause.
 	 */
-	private function getSelectClause()
+	private function getSelectClause(): string
 	{
 		return sprintf('SELECT %s FROM %s', implode(', ', $this->columns), $this->table);
 	}
@@ -124,7 +124,7 @@ class QueryBuilder
 	 *
 	 * @return string the select query.
 	 */
-	private function getSelectQuery()
+	private function getSelectQuery(): string
 	{
 		$result = $this->getSelectClause();
 
@@ -175,7 +175,7 @@ class QueryBuilder
 	 *
 	 * @return string the insert clause.
 	 */
-	private function getInsertClause()
+	private function getInsertClause(): string
 	{
 		$columns = [];
 		$values = [];
@@ -193,7 +193,7 @@ class QueryBuilder
 	 *
 	 * @return string the insert query.
 	 */
-	private function getInsertQuery()
+	private function getInsertQuery(): string
 	{
 		return $this->getInsertClause();
 	}
@@ -214,7 +214,7 @@ class QueryBuilder
 	 *
 	 * @return string the update clause.
 	 */
-	private function getUpdateClause()
+	private function getUpdateClause(): string
 	{
 		$placeholders = [];
 
@@ -230,7 +230,7 @@ class QueryBuilder
 	 *
 	 * @return string the update query.
 	 */
-	private function getUpdateQuery()
+	private function getUpdateQuery(): string
 	{
 		$result = $this->getUpdateClause();
 
@@ -260,7 +260,7 @@ class QueryBuilder
 	 *
 	 * @return string the delete clause.
 	 */
-	private function getDeleteClause()
+	private function getDeleteClause(): string
 	{
 		return sprintf('DELETE FROM %s', $this->table);
 	}
@@ -270,7 +270,7 @@ class QueryBuilder
 	 *
 	 * @return string the delete query.
 	 */
-	private function getDeleteQuery()
+	private function getDeleteQuery(): string
 	{
 
 		$result = $this->getDeleteClause();
@@ -352,7 +352,7 @@ class QueryBuilder
 	 *
 	 * @return string the where clause.
 	 */
-	private function getWhereClause()
+	private function getWhereClause(): string
 	{
 		if (empty($this->where)) {
 			return '';
@@ -376,7 +376,7 @@ class QueryBuilder
 	 * 
 	 * @return string the having clause
 	 */
-	private function getHavingClause()
+	private function getHavingClause(): string
 	{
 		if (empty($this->having)) {
 			return '';
@@ -399,7 +399,7 @@ class QueryBuilder
 	 *
 	 * @return string the group by clause.
 	 */
-	private function getGroupByClause()
+	private function getGroupByClause(): string
 	{
 		if (empty($this->groupBy)) {
 			return '';
@@ -429,7 +429,7 @@ class QueryBuilder
 	 *
 	 * @return string the order by clause.
 	 */
-	private function getOrderByClause()
+	private function getOrderByClause(): string
 	{
 		if (empty($this->orderBy)) {
 			return '';
@@ -453,7 +453,7 @@ class QueryBuilder
 	 *
 	 * @return string the limit clause.
 	 */
-	private function getLimitClause()
+	private function getLimitClause(): string
 	{
 		if (!$this->limit) {
 			return '';
@@ -477,7 +477,7 @@ class QueryBuilder
 	 *
 	 * @return string the offset clause.
 	 */
-	private function getOffsetClause()
+	private function getOffsetClause(): string
 	{
 		if (!$this->limit || !$this->offset) {
 			return '';

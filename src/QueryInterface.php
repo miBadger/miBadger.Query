@@ -66,7 +66,7 @@ interface QueryInterface
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Queries
 	 */
-	public function join($table, $primary, $operator, $secondary);
+	public function join(string $table, string $primary, string $operator, string $secondary);
 
 	/**
 	 * Set an additional left join condition.
@@ -78,7 +78,7 @@ interface QueryInterface
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Queries
 	 */
-	public function leftJoin($table, $primary, $operator, $secondary);
+	public function leftJoin(string $table, string $primary, string $operator, string $secondary);
 
 	/**
 	 * Set an additional right join condition.
@@ -90,7 +90,7 @@ interface QueryInterface
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Queries
 	 */
-	public function rightJoin($table, $primary, $operator, $secondary);
+	public function rightJoin(string $table, string $primary, string $operator, string $secondary);
 
 	/**
 	 * Set an additional cross join condition.
@@ -102,7 +102,7 @@ interface QueryInterface
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Queries
 	 */
-	public function crossJoin($table, $primary, $operator, $secondary);
+	public function crossJoin(string $table, string $primary, string $operator, string $secondary);
 
 	/**
 	 * Set the where condition
@@ -121,7 +121,7 @@ interface QueryInterface
 	 * @return $this
 	 * @see https://en.wikipedia.org/wiki/SQL#Queries
 	 */
-	public function groupBy($column);
+	public function groupBy(string $column);
 
 	/**
 	 * Set an additional order condition.
@@ -132,7 +132,7 @@ interface QueryInterface
 	 * @see https://en.wikipedia.org/wiki/SQL#Queries
 	 * @see https://en.wikipedia.org/wiki/Order_by
 	 */
-	public function orderBy($column, $order = null);
+	public function orderBy(string $column, $order = null);
 
 	/**
 	 * Set the limit.

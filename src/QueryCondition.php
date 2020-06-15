@@ -80,8 +80,9 @@ class QueryCondition implements QueryExpression
 	/**
 	 * Adds a binding to the supplied query for these query condition parameters
 	 * @param miBadger\Query\Query $query the Query to bind to
+	 * @param string $bindingClause The clause to bind to (WHERE, HAVING)
 	 */
-	public function bind(Query $query, $bindingClause = 'where')
+	public function bind(Query $query, string $bindingClause)
 	{
 		if (is_array($this->rightOperand)) {
 			$this->binding = $query->addBindings($bindingClause, $this->rightOperand);

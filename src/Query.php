@@ -37,7 +37,7 @@ class Query implements QueryInterface
 	 * @param \PDO $pdo
 	 * @param string $table
 	 */
-	public function __construct(\PDO $pdo, $table)
+	public function __construct(\PDO $pdo, string $table)
 	{
 		$this->pdo = $pdo;
 		$this->bindings = [];
@@ -103,7 +103,7 @@ class Query implements QueryInterface
 	 * Returns the prepared SQL string, where binding substitutions have been applied
 	 * Example: SELECT * FROM table WHERE name = :where1
 	 */
-	public function toPreparedString()
+	public function toPreparedString(): string
 	{
 		$this->addLateBindings();
 		return $this->queryBuilder->__toString();
@@ -113,7 +113,7 @@ class Query implements QueryInterface
 	 * Returns the SQL string without prepared statements, useful for debugging or logging purposes
 	 * Example: SELECT * FROM table WHERE name = John Doe
 	 */
-	public function toDebugString()
+	public function toDebugString(): string
 	{
 		$this->clearLateBindings();
 		return $this->queryBuilder->__toString();
@@ -171,7 +171,7 @@ class Query implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function join($table, $primary, $operator, $secondary)
+	public function join(string $table, string $primary, string $operator, string $secondary)
 	{
 		$this->queryBuilder->join($table, $primary, $operator, $secondary);
 
@@ -181,7 +181,7 @@ class Query implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function leftJoin($table, $primary, $operator, $secondary)
+	public function leftJoin(string $table, string $primary, string $operator, string $secondary)
 	{
 		$this->queryBuilder->leftJoin($table, $primary, $operator, $secondary);
 
@@ -191,7 +191,7 @@ class Query implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function rightJoin($table, $primary, $operator, $secondary)
+	public function rightJoin(string $table, string $primary, string $operator, string $secondary)
 	{
 		$this->queryBuilder->rightJoin($table, $primary, $operator, $secondary);
 
@@ -201,7 +201,7 @@ class Query implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function crossJoin($table, $primary, $operator, $secondary)
+	public function crossJoin(string $table, string $primary, string $operator, string $secondary)
 	{
 		$this->queryBuilder->crossJoin($table, $primary, $operator, $secondary);
 
@@ -238,7 +238,7 @@ class Query implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function groupBy($column)
+	public function groupBy(string $column)
 	{
 		$this->queryBuilder->groupBy($column);
 
@@ -248,7 +248,7 @@ class Query implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function orderBy($column, $order = null)
+	public function orderBy(string $column, $order = null)
 	{
 		$this->queryBuilder->orderBy($column, $order);
 
@@ -280,7 +280,7 @@ class Query implements QueryInterface
 	 *
 	 * @return QueryResult the result of the executed prepared query.
 	 */
-	public function execute()
+	public function execute(): QueryResult
 	{
 		$pdoStatement = $this->pdo->prepare((string) $this);
 
@@ -303,7 +303,7 @@ class Query implements QueryInterface
 	 * @param mixed $value
 	 * @return int the data type of the given value.
 	 */
-	protected function getPdoDataType($value)
+	protected function getPdoDataType($value): int
 	{
 		$result = \PDO::PARAM_STR;
 
@@ -325,8 +325,9 @@ class Query implements QueryInterface
 	 * @param string $value
 	 * @return string a binding for the given clause and value.
 	 */
-	public function addBinding($clause, $value)
+	public function addBinding(string $clause, $value)
 	{
+		$clause = strtolower($clause);
 		$this->bindings[$clause][] = $value;
 
 		return sprintf(':%s%d', $clause, count($this->bindings[$clause]));
@@ -339,7 +340,7 @@ class Query implements QueryInterface
 	 * @param array $values
 	 * @return array bindings for the given clause and values.
 	 */
-	public function addBindings($clause, array $values)
+	public function addBindings(string $clause, array $values)
 	{
 		$result = [];
 
@@ -357,7 +358,7 @@ class Query implements QueryInterface
 	 * @param string $value
 	 * @return string a binding for the given clause and value.
 	 */
-	private function setBinding($clause, $value)
+	private function setBinding(string $clause, $value)
 	{
 		return $this->removeBindings($clause)->addBinding($clause, $value);
 	}
@@ -369,7 +370,7 @@ class Query implements QueryInterface
 	 * @param array $values
 	 * @return array bindings for the given clause and values.
 	 */
-	private function setBindings($clause, array $values)
+	private function setBindings(string $clause, array $values)
 	{
 		return $this->removeBindings($clause)->addBindings($clause, $values);
 	}
@@ -380,7 +381,7 @@ class Query implements QueryInterface
 	 * @param string $clause
 	 * @return $this
 	 */
-	private function removeBindings($clause)
+	private function removeBindings(string $clause)
 	{
 		$this->bindings[$clause] = [];
 
