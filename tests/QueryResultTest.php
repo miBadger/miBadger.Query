@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class QueryResultTest extends TestCase
 {
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->pdo = new \PDO('sqlite::memory:');
 

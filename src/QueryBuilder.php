@@ -14,8 +14,13 @@ namespace miBadger\Query;
  *
  * @since 1.0.0
  */
-class QueryBuilder implements QueryInterface
+class QueryBuilder
 {
+	const SELECT = 'SELECT';
+	const INSERT = 'INSERT INTO';
+	const UPDATE = 'UPDATE';
+	const DELETE = 'DELETE';
+	
 	/* @var string The modifier. SELECT, INSERT INTO, UPDATE or DELETE */
 	private $modifier;
 
@@ -31,8 +36,8 @@ class QueryBuilder implements QueryInterface
 	/* @var array The join conditions. */
 	private $join;
 
-	/* @var array The where conditions. */
-	private $where;
+	/* @var QueryExpression The where clause. */
+	public $where;
 
 	/* @var array The group by conditions. */
 	private $groupBy;
@@ -46,6 +51,9 @@ class QueryBuilder implements QueryInterface
 	/* @var string The offset. */
 	private $offset;
 
+	/* @var QueryExpression The having clause. */
+	public $having;
+
 	/**
 	 * Construct a query builder object with the given table.
 	 *
@@ -54,10 +62,15 @@ class QueryBuilder implements QueryInterface
 	public function __construct($table)
 	{
 		$this->table = $table;
+		$this->columns = [];
+		$this->values = [];
 		$this->join = [];
-		$this->where = [];
+		$this->where = null;
 		$this->groupBy = [];
 		$this->orderBy = [];
+		$this->limit = null;
+		$this->offset = null;
+		$this->having = null;
 	}
 
 	/**
@@ -127,6 +140,10 @@ class QueryBuilder implements QueryInterface
 			$result .= ' ' . $groupBy;
 		}
 
+		if ($having = $this->getHavingClause()) {
+			$result .= ' ' . $having;
+		}
+
 		if ($orderBy = $this->getOrderByClause()) {
 			$result .= ' ' . $orderBy;
 		}
@@ -164,7 +181,7 @@ class QueryBuilder implements QueryInterface
 		$values = [];
 
 		foreach ($this->values as $key => $value) {
-			$columns[] = $key;
+			$columns[] = sprintf('`%s`', $key);
 			$values[] = sprintf('%s', $value);
 		}
 
@@ -202,7 +219,7 @@ class QueryBuilder implements QueryInterface
 		$placeholders = [];
 
 		foreach ($this->values as $key => $value) {
-			$placeholders[] = sprintf('%s = %s', $key, $value);
+			$placeholders[] = sprintf('`%s` = %s', $key, $value);
 		}
 
 		return sprintf('UPDATE %s SET %s', $this->table, implode(', ', $placeholders));
@@ -323,9 +340,9 @@ class QueryBuilder implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function where($column, $operator, $value)
+	public function where(QueryExpression $whereClause)
 	{
-		$this->where[] = [$column, $operator, $value];
+		$this->where = $whereClause;
 
 		return $this;
 	}
@@ -341,30 +358,30 @@ class QueryBuilder implements QueryInterface
 			return '';
 		}
 
-		$result = [];
-
-		foreach ($this->where as $key => $value) {
-			$result[] = $this->getWhereCondition($value[0], $value[1], $value[2]);
-		}
-
-		return sprintf('WHERE %s', implode(' AND ', $result));
+		return sprintf('WHERE %s', (string) $this->where);
 	}
 
 	/**
-	 * Returns the where condition.
-	 *
-	 * @param string $column
-	 * @param string $operator
-	 * @param mixed $value
-	 * @return string the where condition.
+	 * {@inheritdoc}
 	 */
-	private function getWhereCondition($column, $operator, $value)
+	public function having(QueryExpression $havingClause)
 	{
-		if ($operator == 'IN') {
-			return sprintf('%s IN (%s)', $column, is_array($value) ? implode(', ', $value) : $value);
-		} else {
-			return sprintf('%s %s %s', $column, $operator, $value);
+		$this->having = $havingClause;
+
+		return $this;
+	}
+
+	/**
+	 * Returns the having clause
+	 * 
+	 * @return string the having clause
+	 */
+	private function getHavingClause()
+	{
+		if (empty($this->having)) {
+			return '';
 		}
+		return sprintf('HAVING %s', (string) $this->having);
 	}
 
 	/**

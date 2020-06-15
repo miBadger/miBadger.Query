@@ -81,7 +81,7 @@ class QueryBuilderTest extends TestCase
 	{
 		$query = (new QueryBuilder('test'))
 			->select()
-			->where('name', 'LIKE', 'John Doe');
+			->where(Query::Like('name', 'John Doe'));
 
 		$this->assertEquals('SELECT * FROM test WHERE name LIKE John Doe', (string) $query);
 	}
@@ -90,17 +90,62 @@ class QueryBuilderTest extends TestCase
 	{
 		$query = (new QueryBuilder('test'))
 			->select()
-			->where('name', 'LIKE', 'John Doe')
-			->where('email', 'LIKE', 'john@doe.com');
+			->where(Query::And(
+					Query::Like('name', 'John Doe'),
+					Query::Like('email', 'john@doe.com')
+				));
 
-		$this->assertEquals('SELECT * FROM test WHERE name LIKE John Doe AND email LIKE john@doe.com', (string) $query);
+		$this->assertEquals('SELECT * FROM test WHERE ( name LIKE John Doe ) AND ( email LIKE john@doe.com )', (string) $query);
+
+		$clauses = [
+			Query::Like('name', 'John Doe'),
+			Query::Like('email', 'john@doe.com')
+		];
+		
+		$query = (new QueryBuilder('test'))
+			->select()
+			->where(Query::AndArray($clauses));
+
+		$this->assertEquals('SELECT * FROM test WHERE ( name LIKE John Doe ) AND ( email LIKE john@doe.com )', (string) $query);
+	}
+
+	public function testSelectWhereOr()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->where(Query::Or(
+					Query::Like('name', 'John Doe'),
+					Query::Like('email', 'john@doe.com')
+				));
+
+		$this->assertEquals('SELECT * FROM test WHERE ( name LIKE John Doe ) OR ( email LIKE john@doe.com )', (string) $query);
+		
+		$clauses = [
+			Query::Like('name', 'John Doe'),
+			Query::Like('email', 'john@doe.com')
+		];
+
+		$query = (new QueryBuilder('test'))
+			->select()
+			->where(Query::OrArray($clauses));
+
+		$this->assertEquals('SELECT * FROM test WHERE ( name LIKE John Doe ) OR ( email LIKE john@doe.com )', (string) $query);
+	}
+
+	public function testSelectWhereNot()
+	{
+		$query = (new QueryBuilder('test'))
+			->select()
+			->where(Query::Not(Query::Like('name', 'John Doe')));
+
+		$this->assertEquals('SELECT * FROM test WHERE NOT ( name LIKE John Doe )', (string) $query);
 	}
 
 	public function testSeelectWhereIn()
 	{
 		$query = (new QueryBuilder('test'))
 			->select()
-			->where('name', 'IN', 'John Doe, Jane Doe');
+			->where(Query::In('name', 'John Doe, Jane Doe'));
 
 		$this->assertEquals('SELECT * FROM test WHERE name IN (John Doe, Jane Doe)', (string) $query);
 	}
@@ -109,7 +154,7 @@ class QueryBuilderTest extends TestCase
 	{
 		$query = (new QueryBuilder('test'))
 			->select()
-			->where('name', 'IN', ['John Doe', 'Jane Doe']);
+			->where(Query::In('name', ['John Doe', 'Jane Doe']));
 
 		$this->assertEquals('SELECT * FROM test WHERE name IN (John Doe, Jane Doe)', (string) $query);
 	}
@@ -174,7 +219,7 @@ class QueryBuilderTest extends TestCase
 		$query = (new QueryBuilder('test'))
 			->insert(['name' => 'John Doe']);
 
-		$this->assertEquals('INSERT INTO test (name) VALUES (John Doe)', (string) $query);
+		$this->assertEquals('INSERT INTO test (`name`) VALUES (John Doe)', (string) $query);
 	}
 
 	public function testInsertMultiple()
@@ -182,42 +227,42 @@ class QueryBuilderTest extends TestCase
 		$query = (new QueryBuilder('test'))
 			->insert(['name' => 'John Doe', 'email' => 'john@doe.com']);
 
-		$this->assertEquals('INSERT INTO test (name, email) VALUES (John Doe, john@doe.com)', (string) $query);
+		$this->assertEquals('INSERT INTO test (`name`, `email`) VALUES (John Doe, john@doe.com)', (string) $query);
 	}
 
 	public function testUpdate()
 	{
 		$query = (new QueryBuilder('test'))
 			->update(['name' => 'John Doe'])
-			->where('id', '=', 1);
+			->where(Query::Equal('id', 1));
 
-		$this->assertEquals('UPDATE test SET name = John Doe WHERE id = 1', (string) $query);
+		$this->assertEquals('UPDATE test SET `name` = John Doe WHERE id = 1', (string) $query);
 	}
 
 	public function testUpdateMultiple()
 	{
 		$query = (new QueryBuilder('test'))
 			->update(['name' => 'John Doe', 'email' => 'john@doe.com'])
-			->where('id', '=', 1);
+			->where(Query::Equal('id', 1));
 
-		$this->assertEquals('UPDATE test SET name = John Doe, email = john@doe.com WHERE id = 1', (string) $query);
+		$this->assertEquals('UPDATE test SET `name` = John Doe, `email` = john@doe.com WHERE id = 1', (string) $query);
 	}
 
 	public function testUpdateLimit()
 	{
 		$query = (new QueryBuilder('test'))
 			->update(['name' => 'John Doe'])
-			->where('id', '=', 1)
+			->where(Query::Equal('id', 1))
 			->limit(1);
 
-		$this->assertEquals('UPDATE test SET name = John Doe WHERE id = 1 LIMIT 1', (string) $query);
+		$this->assertEquals('UPDATE test SET `name` = John Doe WHERE id = 1 LIMIT 1', (string) $query);
 	}
 
 	public function testDelete()
 	{
 		$query = (new QueryBuilder('test'))
 			->delete()
-			->where('id', '=', 1);
+			->where(Query::Equal('id', 1));
 
 		$this->assertEquals('DELETE FROM test WHERE id = 1', (string) $query);
 	}
