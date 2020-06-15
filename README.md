@@ -5,22 +5,24 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/miBadger/miBadger.Query/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/miBadger/miBadger.Query/?branch=master)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/62ef48d1-19c3-4494-b514-6df87e393083/mini.png)](https://insight.sensiolabs.com/projects/62ef48d1-19c3-4494-b514-6df87e393083)
 
-The Query Component.
+The Query Component. For more documentation, see the docs folder.
 
 ## Example
 
 ```php
 <?php
 
-use miBadger/Query/Query;
+use miBadger\Query\Query;
 
 /**
  * Get John Doe's email.
  */
 $query = (new Query($pdo, $table))
 	->select(['email'])
-	->where('first_name', 'LIKE', 'John')
-	->where('last_name', 'LIKE', 'Doe')
+	->where(
+		Query::And(
+			Query::Like('first_name', 'John'),
+			Query::Like('last_name', 'Doe')))
 	->limit(3);
 
 /**

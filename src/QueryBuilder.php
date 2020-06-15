@@ -14,8 +14,13 @@ namespace miBadger\Query;
  *
  * @since 1.0.0
  */
-class QueryBuilder implements QueryInterface
+class QueryBuilder
 {
+	const SELECT = 'SELECT';
+	const INSERT = 'INSERT INTO';
+	const UPDATE = 'UPDATE';
+	const DELETE = 'DELETE';
+	
 	/* @var string The modifier. SELECT, INSERT INTO, UPDATE or DELETE */
 	private $modifier;
 
@@ -31,8 +36,8 @@ class QueryBuilder implements QueryInterface
 	/* @var array The join conditions. */
 	private $join;
 
-	/* @var array The where conditions. */
-	private $where;
+	/* @var QueryExpression The where clause. */
+	public $where;
 
 	/* @var array The group by conditions. */
 	private $groupBy;
@@ -46,6 +51,9 @@ class QueryBuilder implements QueryInterface
 	/* @var string The offset. */
 	private $offset;
 
+	/* @var QueryExpression The having clause. */
+	public $having;
+
 	/**
 	 * Construct a query builder object with the given table.
 	 *
@@ -54,10 +62,15 @@ class QueryBuilder implements QueryInterface
 	public function __construct($table)
 	{
 		$this->table = $table;
+		$this->columns = [];
+		$this->values = [];
 		$this->join = [];
-		$this->where = [];
+		$this->where = null;
 		$this->groupBy = [];
 		$this->orderBy = [];
+		$this->limit = null;
+		$this->offset = null;
+		$this->having = null;
 	}
 
 	/**
@@ -101,7 +114,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the select clause.
 	 */
-	private function getSelectClause()
+	private function getSelectClause(): string
 	{
 		return sprintf('SELECT %s FROM %s', implode(', ', $this->columns), $this->table);
 	}
@@ -111,7 +124,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the select query.
 	 */
-	private function getSelectQuery()
+	private function getSelectQuery(): string
 	{
 		$result = $this->getSelectClause();
 
@@ -125,6 +138,10 @@ class QueryBuilder implements QueryInterface
 
 		if ($groupBy = $this->getGroupByClause()) {
 			$result .= ' ' . $groupBy;
+		}
+
+		if ($having = $this->getHavingClause()) {
+			$result .= ' ' . $having;
 		}
 
 		if ($orderBy = $this->getOrderByClause()) {
@@ -158,13 +175,13 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the insert clause.
 	 */
-	private function getInsertClause()
+	private function getInsertClause(): string
 	{
 		$columns = [];
 		$values = [];
 
 		foreach ($this->values as $key => $value) {
-			$columns[] = $key;
+			$columns[] = sprintf('`%s`', $key);
 			$values[] = sprintf('%s', $value);
 		}
 
@@ -176,7 +193,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the insert query.
 	 */
-	private function getInsertQuery()
+	private function getInsertQuery(): string
 	{
 		return $this->getInsertClause();
 	}
@@ -197,12 +214,12 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the update clause.
 	 */
-	private function getUpdateClause()
+	private function getUpdateClause(): string
 	{
 		$placeholders = [];
 
 		foreach ($this->values as $key => $value) {
-			$placeholders[] = sprintf('%s = %s', $key, $value);
+			$placeholders[] = sprintf('`%s` = %s', $key, $value);
 		}
 
 		return sprintf('UPDATE %s SET %s', $this->table, implode(', ', $placeholders));
@@ -213,7 +230,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the update query.
 	 */
-	private function getUpdateQuery()
+	private function getUpdateQuery(): string
 	{
 		$result = $this->getUpdateClause();
 
@@ -243,7 +260,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the delete clause.
 	 */
-	private function getDeleteClause()
+	private function getDeleteClause(): string
 	{
 		return sprintf('DELETE FROM %s', $this->table);
 	}
@@ -253,7 +270,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the delete query.
 	 */
-	private function getDeleteQuery()
+	private function getDeleteQuery(): string
 	{
 
 		$result = $this->getDeleteClause();
@@ -323,9 +340,9 @@ class QueryBuilder implements QueryInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function where($column, $operator, $value)
+	public function where(QueryExpression $whereClause)
 	{
-		$this->where[] = [$column, $operator, $value];
+		$this->where = $whereClause;
 
 		return $this;
 	}
@@ -335,36 +352,36 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the where clause.
 	 */
-	private function getWhereClause()
+	private function getWhereClause(): string
 	{
 		if (empty($this->where)) {
 			return '';
 		}
 
-		$result = [];
-
-		foreach ($this->where as $key => $value) {
-			$result[] = $this->getWhereCondition($value[0], $value[1], $value[2]);
-		}
-
-		return sprintf('WHERE %s', implode(' AND ', $result));
+		return sprintf('WHERE %s', (string) $this->where);
 	}
 
 	/**
-	 * Returns the where condition.
-	 *
-	 * @param string $column
-	 * @param string $operator
-	 * @param mixed $value
-	 * @return string the where condition.
+	 * {@inheritdoc}
 	 */
-	private function getWhereCondition($column, $operator, $value)
+	public function having(QueryExpression $havingClause)
 	{
-		if ($operator == 'IN') {
-			return sprintf('%s IN (%s)', $column, is_array($value) ? implode(', ', $value) : $value);
-		} else {
-			return sprintf('%s %s %s', $column, $operator, $value);
+		$this->having = $havingClause;
+
+		return $this;
+	}
+
+	/**
+	 * Returns the having clause
+	 * 
+	 * @return string the having clause
+	 */
+	private function getHavingClause(): string
+	{
+		if (empty($this->having)) {
+			return '';
 		}
+		return sprintf('HAVING %s', (string) $this->having);
 	}
 
 	/**
@@ -382,7 +399,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the group by clause.
 	 */
-	private function getGroupByClause()
+	private function getGroupByClause(): string
 	{
 		if (empty($this->groupBy)) {
 			return '';
@@ -412,7 +429,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the order by clause.
 	 */
-	private function getOrderByClause()
+	private function getOrderByClause(): string
 	{
 		if (empty($this->orderBy)) {
 			return '';
@@ -436,7 +453,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the limit clause.
 	 */
-	private function getLimitClause()
+	private function getLimitClause(): string
 	{
 		if (!$this->limit) {
 			return '';
@@ -460,7 +477,7 @@ class QueryBuilder implements QueryInterface
 	 *
 	 * @return string the offset clause.
 	 */
-	private function getOffsetClause()
+	private function getOffsetClause(): string
 	{
 		if (!$this->limit || !$this->offset) {
 			return '';
