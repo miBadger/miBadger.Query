@@ -28,9 +28,13 @@ class QueryPredicate implements QueryExpression
 	 */
 	public function __construct(string $type, QueryExpression $left, QueryExpression ...$others)
 	{
+		$type = strtoupper($type);
 		switch ($type) {
 			case 'AND':
 			case 'OR':
+				if (empty($others)) {
+					throw new QueryException(sprintf("%s Operator needs at least two arguments", $type));
+				}
 				$this->type = $type;
 				break;
 
@@ -75,17 +79,13 @@ class QueryPredicate implements QueryExpression
 		$sql = '';
 		switch ($this->type) {
 			case 'AND':
-				$sql = join(' AND ', $conditionSql);
-				break;
+				return join(' AND ', $conditionSql);
 			case 'OR':
-				$sql = join(' OR ', $conditionSql);
-				break;
+				return join(' OR ', $conditionSql);
 			case 'NOT':
-				$sql = sprintf('NOT %s', $conditionSql[0]);
-				break;
+				return sprintf('NOT %s', $conditionSql[0]);
 			default:
-				throw new QueryException(sprintf("Invalid predicate operator \"%s\"", $this->type));
+				// return ''; // This case can never happen
 		}
-		return $sql;
 	}
 }

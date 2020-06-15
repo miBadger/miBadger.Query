@@ -26,6 +26,28 @@ class QueryTest extends TestCase
 		$this->assertEquals('', (string) $query);
 	}
 
+	public function testDebugSerialization()
+	{
+		$pdo = new \PDO('sqlite::memory:');
+		$query = (new Query($pdo, 'test'))
+			->select()
+			->where(Query::Like('name', 'John Doe'));
+
+		$this->assertEquals('SELECT * FROM test WHERE name LIKE :where1', (string) $query);
+		$this->assertEquals('SELECT * FROM test WHERE name LIKE John Doe', $query->toDebugString());
+	}
+
+	public function testExpressionReuse()
+	{
+		$whereExpression = Query::Greater('Foo', 3);
+
+		$pdo = new \PDO('sqlite::memory:');
+		$q1 = (new Query($pdo, 'test'))->select()->where($whereExpression);
+		$q2 = (new Query($pdo, 'test'))->select()->where($whereExpression);
+
+		$this->assertEquals((string) $q1, (string) $q2);
+	}
+
 	public function testSelect()
 	{
 		$pdo = new \PDO('sqlite::memory:');
@@ -37,7 +59,7 @@ class QueryTest extends TestCase
 
 	public function testSelectOneColumn()
 	{
-		$pdo = new \PDO('sqlite::memory');
+		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
 			->select(['id']);
 
@@ -46,7 +68,7 @@ class QueryTest extends TestCase
 
 	public function testSelectOneColumnUnquoted()
 	{
-		$pdo = new \PDO('sqlite::memory');
+		$pdo = new \PDO('sqlite::memory:');
 		$query = (new Query($pdo, 'test'))
 			->select(['id'], false);
 

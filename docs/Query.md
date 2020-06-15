@@ -66,6 +66,7 @@ $query->offset($offset);
 ```
 
 # Query Clauses
+The following Query expressions are available (These are just shorthands for the QueryCondition and QueryPredicate classes)
 ```php
 /**
  * Creates a $val > 4 condition

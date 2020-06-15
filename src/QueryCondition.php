@@ -28,9 +28,9 @@ class QueryCondition implements QueryExpression
 
 	/**
 	 * Constructs a new Query condition for the supplied operator and operands
-	 * @param mixed $left the lhs of the expression
+	 * @param mixed $left the lhs of the expression (Not escaped!)
 	 * @param string $operator the SQL operator
-	 * @param mixed $right the rhs of the expression
+	 * @param mixed $right the rhs of the expression (escaped)
 	 */
 	public function __construct($left, string $operator, $right)
 	{
@@ -38,7 +38,7 @@ class QueryCondition implements QueryExpression
 		$this->operator = $operator;
 		$this->binding = null;
 
-		switch ($operator) {
+		switch (strtoupper($operator)) {
 			case '<':
 			case '<=':
 			case '>=':
@@ -49,6 +49,9 @@ class QueryCondition implements QueryExpression
 			case 'NOT LIKE':
 			case 'IS':
 			case 'IS NOT':
+				if (is_array($right)) {
+					throw new QueryException("Array Unsupported for this operand type");
+				}
 				$this->rightOperand = $right;
 				break;
 
@@ -85,6 +88,12 @@ class QueryCondition implements QueryExpression
 		} else {
 			$this->binding = $query->addBinding($bindingClause, $this->rightOperand);
 		}
+	}
+
+
+	public function clearBinding()
+	{
+		$this->binding = null;
 	}
 
 	/**

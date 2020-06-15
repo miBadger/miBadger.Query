@@ -25,6 +25,12 @@ class Query implements QueryInterface
 	/* @var QueryBuilder The query builder. */
 	private $queryBuilder;
 
+	/* @var QueryExpression The expression for the where clause */
+	private $whereExpression;
+
+	/* @var QueryExpression The expression for the having clause */
+	private $havingExpression;
+
 	/**
 	 * Construct a query object with the given pdo and table.
 	 *
@@ -35,6 +41,8 @@ class Query implements QueryInterface
 	{
 		$this->pdo = $pdo;
 		$this->bindings = [];
+		$this->whereExpression = null;
+		$this->havingExpression = null;
 		$this->queryBuilder = new QueryBuilder($table);
 	}
 
@@ -45,6 +53,69 @@ class Query implements QueryInterface
 	 */
 	public function __toString()
 	{
+		return $this->toPreparedString();
+	}
+
+	/**
+	 * Binds the registered Where and Having expression clauses, 
+	 * 	before being executed (or printed)
+	 */
+	private function addLateBindings()
+	{
+		// Late binding of where statement
+		if ($this->whereExpression !== null) {
+			foreach ($this->whereExpression->getFlattenedConditions() as $cond) {
+				$cond->bind($this, 'where');
+			}
+		}
+
+		// Late binding of having statement
+		if ($this->havingExpression !== null) {
+			foreach ($this->havingExpression->getFlattenedConditions() as $cond) {
+				$cond->bind($this, 'having');
+			}
+		}		
+	}
+
+	/**
+	 * Removes the late-bound bindings for the Where/Having expression clauses,
+	 * 	used to make debug strings possible
+	 */
+	private function clearLateBindings()
+	{
+		// Remove the binding from the QueryConditions and remove the bound values.
+		if ($this->whereExpression !== null) {
+			foreach ($this->whereExpression->getFlattenedConditions() as $cond) {
+				$cond->clearBinding();
+			}
+		}
+		$this->removeBindings('where');
+
+		if ($this->havingExpression !== null) {
+			foreach ($this->havingExpression->getFlattenedConditions() as $cond) {
+				$cond->clearBinding();
+			}
+		}
+		$this->removeBindings('having');
+	}
+
+	/**
+	 * Returns the prepared SQL string, where binding substitutions have been applied
+	 * Example: SELECT * FROM table WHERE name = :where1
+	 */
+	public function toPreparedString()
+	{
+		$this->addLateBindings();
+		return $this->queryBuilder->__toString();
+	}
+
+	/**
+	 * Returns the SQL string without prepared statements, useful for debugging or logging purposes
+	 * Example: SELECT * FROM table WHERE name = John Doe
+	 */
+	public function toDebugString()
+	{
+		$this->clearLateBindings();
 		return $this->queryBuilder->__toString();
 	}
 
@@ -142,14 +213,10 @@ class Query implements QueryInterface
 	 */
 	public function where(QueryExpression $exp)
 	{
-		$conds = $exp->getFlattenedConditions();
+		$this->whereExpression = $exp;
 
 		if ($this->queryBuilder->where !== null) {
 			throw new QueryException('Can only call where on query once.');
-		}
-
-		foreach ($conds as $cond) {
-			$cond->bind($this);
 		}
 
 		$this->queryBuilder->where($exp);
@@ -158,14 +225,10 @@ class Query implements QueryInterface
 
 	public function having(QueryExpression $exp)
 	{
-		$conds = $exp->getFlattenedConditions();
+		$this->havingExpression = $exp;
 
 		if ($this->queryBuilder->having !== null) {
 			throw new QueryException('Can only call having on query once.');
-		}
-
-		foreach ($conds as $cond) {
-			$cond->bind($this, 'having');
 		}
 
 		$this->queryBuilder->having($exp);
@@ -228,6 +291,8 @@ class Query implements QueryInterface
 		}
 
 		$pdoStatement->execute();
+
+		$this->clearLateBindings();
 
 		return new QueryResult($pdoStatement);
 	}
@@ -328,7 +393,7 @@ class Query implements QueryInterface
 	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function Greater($left, $right)
+	public static function Greater($left, $right): QueryCondition
 	{
 		return new QueryCondition($left, '>', $right);
 	}
@@ -339,7 +404,7 @@ class Query implements QueryInterface
 	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function GreaterOrEqual($left, $right)
+	public static function GreaterOrEqual($left, $right): QueryCondition
 	{
 		return new QueryCondition($left, '>=', $right);
 	}
@@ -350,7 +415,7 @@ class Query implements QueryInterface
 	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function Less($left, $right)
+	public static function Less($left, $right): QueryCondition
 	{
 		return new QueryCondition($left, '<', $right);
 	}
@@ -361,7 +426,7 @@ class Query implements QueryInterface
 	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function LessOrEqual($left, $right)
+	public static function LessOrEqual($left, $right): QueryCondition
 	{
 		return new QueryCondition($left, '<=', $right);
 	}
@@ -372,7 +437,7 @@ class Query implements QueryInterface
 	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function Equal($left, $right)
+	public static function Equal($left, $right): QueryCondition
 	{
 		return new QueryCondition($left, '=', $right);
 	}
@@ -383,7 +448,7 @@ class Query implements QueryInterface
 	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function NotEqual($left, $right)
+	public static function NotEqual($left, $right): QueryCondition
 	{
 		return new QueryCondition($left, '<>', $right);
 	}
@@ -394,7 +459,7 @@ class Query implements QueryInterface
 	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function NotLike($left, $right)
+	public static function NotLike($left, $right): QueryCondition
 	{
 		return new QueryCondition($left, 'NOT LIKE', $right);
 	}
@@ -405,7 +470,7 @@ class Query implements QueryInterface
 	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function Like($left, $right)
+	public static function Like($left, $right): QueryCondition
 	{
 		return new QueryCondition($left, 'LIKE', $right);
 	}
@@ -416,7 +481,7 @@ class Query implements QueryInterface
 	 * @param mixed $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function Is($left, $right)
+	public static function Is($left, $right): QueryCondition
 	{
 		return new QueryCondition($left, 'IS', $right);
 	}
@@ -427,7 +492,7 @@ class Query implements QueryInterface
 	 * @param string|array $right the rhs of the condition. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function IsNot($left, $right)
+	public static function IsNot($left, $right): QueryCondition
 	{
 		return new QueryCondition($left, 'IS NOT', $right);
 	}
@@ -438,7 +503,7 @@ class Query implements QueryInterface
 	 * @param string|Array $haystack the values that can be searched through. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function NotIn($needle, $haystack)
+	public static function NotIn($needle, $haystack): QueryCondition
 	{
 		return new QueryCondition($needle, 'NOT IN', $haystack);
 	}
@@ -449,7 +514,7 @@ class Query implements QueryInterface
 	 * @param string|Array $haystack the values that can be searched through. Escaped
 	 * @return QueryCondition the query condition
 	 */
-	public static function In($needle, $haystack)
+	public static function In($needle, $haystack): QueryCondition
 	{
 		return new QueryCondition($needle, 'IN', $haystack);
 	}
@@ -458,7 +523,7 @@ class Query implements QueryInterface
 	 * Creates an "AND" predicate from a variable number of expressions
 	 * @return QueryPredicate the predicate expression
 	 */
-	public static function And(QueryExpression $left, QueryExpression ...$others)
+	public static function And(QueryExpression $left, QueryExpression ...$others): ?QueryPredicate
 	{
 		return new QueryPredicate('AND', $left, ...$others);
 	}
@@ -468,7 +533,7 @@ class Query implements QueryInterface
 	 * @return miBadger\Query\QueryExpression|null Either null (if array contains no clauses), 
 	 * 				the single clause in the input array, or a QueryPredicate combining the clauses
 	 */
-	public static function AndArray(Array $clauses)
+	public static function AndArray(Array $clauses): ?QueryPredicate
 	{
 		if (count($clauses) == 0) {
 			return null;
@@ -484,7 +549,7 @@ class Query implements QueryInterface
 	 * Creates an "OR" predicate from a variable number of expressions
 	 * @return QueryPredicate the predicate expression
 	 */
-	public static function Or(QueryExpression $left, QueryExpression ...$others)
+	public static function Or(QueryExpression $left, QueryExpression ...$others): QueryPredicate
 	{
 		return new QueryPredicate('OR', $left, ...$others);
 	}
@@ -494,7 +559,7 @@ class Query implements QueryInterface
 	 * @return miBadger\Query\QueryExpression|null Either null (if array contains no clauses), 
 	 * 				the single clause in the input array, or a QueryPredicate combining the clauses
 	 */
-	public static function OrArray(Array $clauses)
+	public static function OrArray(Array $clauses): ?QueryPredicate
 	{
 		if (count($clauses) == 0) {
 			return null;
@@ -511,7 +576,7 @@ class Query implements QueryInterface
 	 * @param QueryExpression The condition to be negated
 	 * @return QueryPredicate the predicate expression
 	 */
-	public static function Not(QueryExpression $exp)
+	public static function Not(QueryExpression $exp): QueryPredicate
 	{
 		return new QueryPredicate('NOT', $exp);
 	}
