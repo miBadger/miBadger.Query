@@ -533,7 +533,7 @@ class Query implements QueryInterface
 	 * @return miBadger\Query\QueryExpression|null Either null (if array contains no clauses), 
 	 * 				the single clause in the input array, or a QueryPredicate combining the clauses
 	 */
-	public static function AndArray(Array $clauses): ?QueryPredicate
+	public static function AndArray(Array $clauses)
 	{
 		if (count($clauses) == 0) {
 			return null;
@@ -559,7 +559,7 @@ class Query implements QueryInterface
 	 * @return miBadger\Query\QueryExpression|null Either null (if array contains no clauses), 
 	 * 				the single clause in the input array, or a QueryPredicate combining the clauses
 	 */
-	public static function OrArray(Array $clauses): ?QueryPredicate
+	public static function OrArray(Array $clauses)
 	{
 		if (count($clauses) == 0) {
 			return null;
